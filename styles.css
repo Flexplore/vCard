@@ -58,7 +58,6 @@ a{ color: inherit; text-decoration:none; }
   position: relative;
 }
 
-/* taille logo forcée (au cas où un style global img { width:100% } traîne) */
 .logoImg{
   width: 22px !important;
   height: 22px !important;
@@ -88,13 +87,13 @@ a{ color: inherit; text-decoration:none; }
 
 /* zone robot */
 .robotShell{
-  width: min(330px, 88vw);
-  height: min(330px, 88vw);
-  max-height: 42vh;
-  max-width: 42vh;
+  width: min(360px, 92vw);
+  height: min(360px, 92vw);
+  max-height: 46vh;
+  max-width: 46vh;
   position: relative;
 
-  /* IMPORTANT: aucun parent ne coupe */
+  /* aucun parent ne coupe */
   overflow: visible;
 
   display:flex;
@@ -104,15 +103,13 @@ a{ color: inherit; text-decoration:none; }
   margin-top: 2px;
 }
 
-/* SEUL MASQUE: le rond */
+/* SEUL MASQUE: le rond (fenêtre) */
+/* -> on l’agrandit pour éviter bras/tête coupés */
 .robotMask{
   position:absolute;
-  inset: 8%;
+  inset: 3%;
   border-radius: 999px;
-
-  /* le seul endroit qui coupe */
   overflow: hidden;
-
   z-index: 1;
 }
 
@@ -122,7 +119,6 @@ a{ color: inherit; text-decoration:none; }
   inset: 0;
   width: 100%;
   height: 100%;
-
   overflow: visible !important;
   border-radius: 0 !important;
 
@@ -132,34 +128,35 @@ a{ color: inherit; text-decoration:none; }
 }
 
 /*
-  Le cadrage du robot se fait ICI.
-  - plus à droite: augmente translateX(...)
-  - plus bas: augmente translateY(...)
-  - plus gros: augmente scale(...)
+  clé anti "cadre invisible" :
+  - on rend le viewer beaucoup plus grand que le rond
+  - puis on le “re-zoom” avec scale
+  ça supprime les coupes rectangulaires internes au viewer
 */
 .robotStage spline-viewer{
   position: absolute;
   left: 50%;
   top: 50%;
 
-  width: 175%;
-  height: 175%;
+  width: 260%;
+  height: 260%;
   display:block;
 
-  /* IMPORTANT: pas de clip CSS caché */
   overflow: visible !important;
   clip-path: none !important;
   mask: none !important;
   -webkit-mask: none !important;
 
-  transform: translate(-50%, -50%) translateX(17%) translateY(18%) scale(.80);
+  /* cadrage: tête + bras OK */
+  transform: translate(-50%, -50%) translateX(18%) translateY(22%) scale(.62);
   transform-origin: 50% 50%;
 }
 
-/* rond (bordure) par-dessus le masque */
+/* rond (bordure) par-dessus la fenêtre */
+/* -> doit matcher robotMask inset */
 .ring{
   position:absolute;
-  inset: 8%;             /* doit matcher .robotMask */
+  inset: 3%;
   border-radius: 999px;
   border: 3px solid rgba(31,183,255,.9);
   box-shadow:
@@ -281,7 +278,7 @@ a{ color: inherit; text-decoration:none; }
   color: rgba(255,255,255,.62);
 }
 
-/* sécurité: pas de clip global */
+/* sécurité anti clip global */
 canvas, iframe, spline-viewer{
   overflow: visible !important;
 }
@@ -290,3 +287,4 @@ canvas, iframe, spline-viewer{
   .ctaRow{ grid-template-columns: 1fr; }
   .name{ font-size: 26px; }
 }
+
