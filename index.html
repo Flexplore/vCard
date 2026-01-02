@@ -1,148 +1,112 @@
 <!doctype html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Florian Fournier • Flexplore</title>
-    <meta name="description" content="Carte de visite : enregistrer le contact, réserver une consultation." />
-    <meta name="theme-color" content="#060b18" />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#070c1b" />
+  <title>Carte NFC • Florian Fournier (Flexplore)</title>
 
-    <link rel="stylesheet" href="./styles.css" />
+  <!-- cache-buster: incrémente v=2, v=3... quand tu modifies -->
+  <link rel="stylesheet" href="styles.css?v=12" />
 
-    <script>
-      (function () {
-        const SCENE_URL =
-          "https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2";
+  <!-- Précharge logo -->
+  <link rel="preload" as="image" href="https://i.imgur.com/HWrE6VI.png" />
 
-        const prefersReducedMotion =
-          window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  <script>
+    // Charge Spline seulement si ça a du sens (perf / data / reduce motion)
+    (function () {
+      const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const saveData = !!(navigator.connection && navigator.connection.saveData);
+      const slowNetwork = !!(navigator.connection && ["slow-2g", "2g"].includes(navigator.connection.effectiveType));
 
-        const saveData = navigator.connection?.saveData === true;
-        const effectiveType = navigator.connection?.effectiveType || "";
-        const slowNetwork = ["slow-2g", "2g"].includes(effectiveType);
+      const shouldEnableSpline = !(prefersReducedMotion || saveData || slowNetwork);
 
-        const shouldEnableSpline = !(prefersReducedMotion || saveData || slowNetwork);
+      // Expose un flag global pour main.js (fallback)
+      window.__SPLINE_ENABLED__ = shouldEnableSpline;
 
-        window.__SPLINE_SCENE_URL__ = SCENE_URL;
-        window.__ENABLE_SPLINE__ = shouldEnableSpline;
-        window.__SPLINE_LIB_READY__ = false;
+      if (!shouldEnableSpline) return;
 
-        if (shouldEnableSpline) {
-          const preload = document.createElement("link");
-          preload.rel = "modulepreload";
-          preload.href = "https://unpkg.com/@splinetool/viewer@1/build/spline-viewer.js";
-          preload.crossOrigin = "anonymous";
-          preload.fetchPriority = "high";
-          document.head.appendChild(preload);
+      const splineLib = "https://unpkg.com/@splinetool/viewer@1/build/spline-viewer.js";
+      const sceneUrl = "https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2";
 
-          const splineFetch = document.createElement("link");
-          splineFetch.rel = "preload";
-          splineFetch.as = "fetch";
-          splineFetch.href = SCENE_URL;
-          splineFetch.crossOrigin = "anonymous";
-          splineFetch.fetchPriority = "high";
-          document.head.appendChild(splineFetch);
+      // Précharge lib + scène
+      const preloadLib = document.createElement("link");
+      preloadLib.rel = "modulepreload";
+      preloadLib.href = splineLib;
+      preloadLib.crossOrigin = "anonymous";
+      document.head.appendChild(preloadLib);
 
-          const script = document.createElement("script");
-          script.type = "module";
-          script.src = "https://unpkg.com/@splinetool/viewer@1/build/spline-viewer.js";
-          script.dataset.splineLoader = "true";
-          script.addEventListener("load", () => {
-            window.__SPLINE_LIB_READY__ = true;
-          });
-          script.addEventListener("error", () => {
-            window.__SPLINE_LIB_READY__ = false;
-          });
-          document.head.appendChild(script);
+      const preloadScene = document.createElement("link");
+      preloadScene.rel = "preload";
+      preloadScene.as = "fetch";
+      preloadScene.href = sceneUrl;
+      preloadScene.crossOrigin = "anonymous";
+      document.head.appendChild(preloadScene);
 
-          fetch(SCENE_URL, { mode: "cors" }).catch(() => {});
-        }
-      })();
-    </script>
-  </head>
+      // Charge la lib
+      const script = document.createElement("script");
+      script.type = "module";
+      script.src = splineLib;
+      script.dataset.splineLoader = "true";
+      document.head.appendChild(script);
 
-  <body>
-    <div
-      id="spline-preload"
-      style="position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden;"
-      aria-hidden="true"
-    >
-      <spline-viewer
-        id="spline-boot"
-        url="https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2"
-      ></spline-viewer>
-    </div>
+      // Tente un fetch "warm"
+      fetch(sceneUrl, { mode: "cors" }).catch(() => {});
+    })();
+  </script>
+</head>
 
-    <main class="screen">
-      <header class="top">
-        <div class="brand">
-          <img
-            class="logoImg"
-            src="https://i.imgur.com/HWrE6VI.png"
-            alt="Flexplore"
-            loading="eager"
-            decoding="async"
-          />
-          <div class="brandName">Flexplore</div>
-        </div>
-      </header>
+<body>
+  <main class="screen">
+    <header class="top">
+      <div class="brand" aria-label="Flexplore">
+        <img class="logoImg" src="https://i.imgur.com/HWrE6VI.png" alt="Logo Flexplore" />
+        <div class="brandName">Flexplore</div>
+      </div>
+    </header>
 
-      <section class="hero">
-        <div class="robotShell" aria-label="Robot Flexplore">
-          <!-- MASQUE CIRCULAIRE : tout ce qui dépasse est coupé -->
-          <div class="robotMask">
-            <div id="robotStage" class="robotStage">
-              <div id="robotFallback" class="robotFallback" aria-hidden="true"></div>
-            </div>
+    <section class="hero">
+      <div class="robotShell" aria-hidden="true">
+        <div class="robotMask">
+          <div class="robotStage" id="robotStage">
+            <!-- Spline (si activé) -->
+            <spline-viewer
+              id="splineRobot"
+              url="https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2"
+            ></spline-viewer>
+
+            <!-- Fallback (si Spline désactivé / pas chargé) -->
+            <div class="robotFallback" id="robotFallback"></div>
           </div>
-
-          <!-- le rond (bordure) par-dessus -->
-          <div class="ring" aria-hidden="true"></div>
         </div>
 
-        <h1 id="fullName" class="name">Florian Fournier</h1>
-        <p id="tagline" class="subtitle">Integrations IA et automatisation dans les PME</p>
+        <div class="ring"></div>
+      </div>
 
-        <div class="ctaRow">
-          <button id="btnAddContact" class="btn outline" type="button">
-            <span class="btnIcon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-                <path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M8.5 10.5 12 13.9l3.5-3.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M6.5 16.5h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </span>
-            Enregistrer contact
-          </button>
+      <h1 class="name">Florian Fournier</h1>
+      <p class="subtitle">Intégrations IA et automatisation dans les PME</p>
 
-          <a id="btnCalendly" class="btn primary" href="#" target="_blank" rel="noreferrer">
-            <span class="btnIcon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
-                <path d="M7 3.5v3M17 3.5v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M4.5 8.2h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M6.5 5.8h11c1.1 0 2 .9 2 2v11.2c0 1.1-.9 2-2 2h-11c-1.1 0-2-.9-2-2V7.8c0-1.1.9-2 2-2Z" stroke="currentColor" stroke-width="1.8"/>
-              </svg>
-            </span>
-            Réserver ma consultation
-          </a>
-        </div>
+      <div class="ctaRow">
+        <button class="btn outline" id="btnVcf" type="button">
+          <span class="btnIcon" aria-hidden="true">⬇</span>
+          Enregistrer contact
+        </button>
 
-        <div class="singleAction">
-          <a id="btnWebsite" class="circleBtn" href="#" target="_blank" rel="noreferrer" aria-label="Site web">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
-              <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8"/>
-              <path d="M3.5 12h17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              <path d="M12 3c2.6 2.6 2.6 15.4 0 18-2.6-2.6-2.6-15.4 0-18Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-            </svg>
-          </a>
-        </div>
-      </section>
+        <a class="btn primary" id="btnCalendly" href="https://calendly.com/flexplore/30min?back=1&month=2025-11" target="_blank" rel="noopener">
+          <span class="btnIcon" aria-hidden="true">📅</span>
+          Réserver ma consultation
+        </a>
+      </div>
 
-      <footer class="foot">
-        <span id="footNote">© <span id="year"></span> Flexplore</span>
-      </footer>
-    </main>
+      <a class="circleBtn" href="https://flexplore-ia.com" target="_blank" rel="noopener" aria-label="Ouvrir le site">
+        <span aria-hidden="true">🌐</span>
+      </a>
+    </section>
 
-    <script src="./main.js"></script>
-  </body>
+    <footer class="foot">© <span id="year"></span> Flexplore</footer>
+  </main>
+
+  <!-- cache-buster: incrémente v=2, v=3... quand tu modifies -->
+  <script src="main.js?v=12"></script>
+</body>
 </html>
