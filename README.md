@@ -1,25 +1,29 @@
-# vCard
-Carte de visite numérique, NFC
-# Carte de visite NFC (site + ajout contact)
+# Carte de visite NFC - Florian Fournier (Flexplore)
 
-Site statique (HTML/CSS/JS) fait pour être ouvert après un scan NFC.
+Mini-site statique (HTML/CSS/JS) optimisé mobile pour une carte NFC.
 Inclut un bouton "Ajouter le contact" qui génère un fichier vCard (.vcf) importable sur iPhone/Android.
 
+## Ce que contient la page
+- Appel, WhatsApp, Email, SMS
+- Prise de RDV (Calendly)
+- Bouton "Ajouter le contact" (fichier .vcf)
+
 ## Personnalisation
-Ouvre `main.js` et modifie l'objet `CONTACT`.
+Tout se modifie dans `main.js` dans l'objet `CONTACT`.
 
 ## Lancer en local
-Option 1 (simple) : ouvrir `index.html` dans le navigateur.
+Option 1 : ouvrir `index.html` dans le navigateur.
 
-Option 2 (serveur local recommandé) :
-- Avec Node installé :
-  - `npx serve .`
-  - ou `npx http-server .`
+Option 2 (recommandé) :
+- `npx serve .`
+ou
+- `npx http-server .`
 
-## Déploiement sur GitHub Pages
-1. Crée un repo sur GitHub (ex: `carte-nfc`)
-2. Push le code (voir commandes ci-dessous)
-3. Le workflow GitHub Actions publie automatiquement sur Pages
+## Déploiement sur GitHub Pages (gratuit)
+1. Crée un repo GitHub (ex: `carte-nfc`)
+2. Push le code (commandes ci-dessous)
+3. Sur GitHub : Settings → Pages → Source = GitHub Actions
+4. Le workflow publie automatiquement le site
 
 URL finale :
 - `https://TON_USER.github.io/carte-nfc/`
