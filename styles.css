@@ -145,7 +145,7 @@ a{ color: inherit; text-decoration:none; }
   -webkit-mask: none !important;
 
   /* réglage: centré + plus gros (corrige ton screenshot) */
-  transform: translate(-50%, -50%) translateX(10%) translateY(10%) scale(.85);
+  transform: translate(-50%, -50%) translateX(12%) translateY(10%) scale(.90);
   transform-origin: 50% 50%;
 }
 
