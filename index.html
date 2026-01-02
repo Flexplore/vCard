@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Carte de visite - Flo</title>
+    <meta name="description" content="Coordonnées, services, et ajout du contact en un clic." />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Carte de visite - Flo" />
+    <meta property="og:description" content="Coordonnées, services, et ajout du contact en un clic." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+
+    <meta name="theme-color" content="#0b1020" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <header class="card hero">
+        <div class="hero-top">
+          <div class="avatar" aria-hidden="true">F</div>
+
+          <div class="hero-id">
+            <h1 id="fullName">Flo</h1>
+            <p id="tagline" class="muted">IA, agents vocaux, automatisations</p>
+            <div class="chips" id="chips">
+              <span class="chip">Vapi</span>
+              <span class="chip">n8n</span>
+              <span class="chip">Assistants IA</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <button id="btnAddContact" class="btn primary" type="button">
+            Ajouter le contact
+          </button>
+
+          <button id="btnShareContact" class="btn" type="button">
+            Partager le contact
+          </button>
+
+          <a id="btnCall" class="btn" href="#" rel="nofollow">
+            Appeler
+          </a>
+
+          <a id="btnWhatsapp" class="btn" href="#" rel="nofollow">
+            WhatsApp
+          </a>
+        </div>
+
+        <div class="divider"></div>
+
+        <section class="grid2">
+          <div class="info">
+            <h2>Coordonnées</h2>
+
+            <ul class="list">
+              <li>
+                <span class="k">Téléphone</span>
+                <span class="v">
+                  <a id="phoneLink" href="#">+33 …</a>
+                  <button id="btnCopyPhone" class="linkbtn" type="button">Copier</button>
+                </span>
+              </li>
+
+              <li>
+                <span class="k">Email</span>
+                <span class="v">
+                  <a id="emailLink" href="#">email@exemple.com</a>
+                </span>
+              </li>
+
+              <li>
+                <span class="k">Site</span>
+                <span class="v">
+                  <a id="websiteLink" href="#" target="_blank" rel="noreferrer">ton-site.fr</a>
+                </span>
+              </li>
+
+              <li>
+                <span class="k">Ville</span>
+                <span id="city" class="v">Carcassonne / Sommières</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="info">
+            <h2>Liens rapides</h2>
+
+            <div class="quick">
+              <a id="btnEmail" class="btn" href="#">Envoyer un email</a>
+              <a id="btnSms" class="btn" href="#">Envoyer un SMS</a>
+              <a id="btnCalendly" class="btn" href="#" target="_blank" rel="noreferrer">Prendre RDV</a>
+              <a id="btnLinkedIn" class="btn" href="#" target="_blank" rel="noreferrer">LinkedIn</a>
+            </div>
+
+            <p class="hint muted">
+              Astuce : après scan NFC, ajoute le site en favori. Le bouton “Ajouter le contact” génère un fichier .vcf importable.
+            </p>
+          </div>
+        </section>
+      </header>
+
+      <section class="card">
+        <h2>Services</h2>
+        <p class="muted">Ce que je propose, rapidement.</p>
+
+        <div class="services">
+          <article class="svc">
+            <h3>Agents vocaux IA</h3>
+            <p>Accueil, qualification, prise de RDV, support. Intégrations Vapi + outils métier.</p>
+          </article>
+
+          <article class="svc">
+            <h3>Automatisations n8n</h3>
+            <p>Workflows sur-mesure : CRM, Google Sheets, WhatsApp, Gmail, webhooks, Supabase.</p>
+          </article>
+
+          <article class="svc">
+            <h3>Assistants IA</h3>
+            <p>Chatbots, bases de connaissances, réponses automatiques, agents internes.</p>
+          </article>
+
+          <article class="svc">
+            <h3>Sites & landing pages</h3>
+            <p>Pages rapides, optimisées mobile, formulaires, tracking, déploiement.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Un besoin ?</h2>
+        <p class="muted">Dis-moi ce que tu veux automatiser, je te réponds vite.</p>
+
+        <div class="cta">
+          <a id="btnWhatsapp2" class="btn primary" href="#">M’écrire sur WhatsApp</a>
+          <a id="btnEmail2" class="btn" href="#">M’envoyer un email</a>
+        </div>
+      </section>
+
+      <footer class="footer muted">
+        <span>© <span id="year"></span> Flo</span>
+        <span class="dot">•</span>
+        <span>Fait pour NFC</span>
+      </footer>
+    </main>
+
+    <div class="bottomBar">
+      <a id="barCall" class="barBtn" href="#">Appel</a>
+      <a id="barWhatsapp" class="barBtn" href="#">WhatsApp</a>
+      <button id="barAdd" class="barBtn primary" type="button">Ajouter</button>
+    </div>
+
+    <script src="./main.js"></script>
+  </body>
+</html>
