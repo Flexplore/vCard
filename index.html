@@ -9,24 +9,28 @@
 
     <link rel="stylesheet" href="./styles.css" />
 
-    <!-- Spline: loader conditionnel + preload scène -->
+    <!-- Spline: loader conditionnel + preload scène (version corrigée) -->
     <script>
       (function () {
         const SCENE_URL =
           "https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2";
 
-        const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-        const lowCpu = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
-                       (navigator.deviceMemory && navigator.deviceMemory <= 4);
+        const prefersReducedMotion =
+          window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
         const saveData = navigator.connection?.saveData === true;
         const effectiveType = navigator.connection?.effectiveType || "";
         const slowNetwork = ["slow-2g", "2g"].includes(effectiveType);
 
-        const shouldEnableSpline = !(prefersReducedMotion || lowCpu || saveData || slowNetwork);
+        // IMPORTANT :
+        // On NE bloque plus Spline sur "low cpu" / "low memory" car ça désactive sur plein de téléphones.
+        // On bloque seulement si l'utilisateur a demandé réduire les animations,
+        // ou si Save-Data / réseau très lent.
+        const shouldEnableSpline = !(prefersReducedMotion || saveData || slowNetwork);
 
-        // Expose pour main.js
         window.__SPLINE_SCENE_URL__ = SCENE_URL;
         window.__ENABLE_SPLINE__ = shouldEnableSpline;
+        window.__SPLINE_LIB_READY__ = false;
 
         if (shouldEnableSpline) {
           // preload lib
@@ -51,6 +55,12 @@
           script.type = "module";
           script.src = "https://unpkg.com/@splinetool/viewer@1/build/spline-viewer.js";
           script.dataset.splineLoader = "true";
+          script.addEventListener("load", () => {
+            window.__SPLINE_LIB_READY__ = true;
+          });
+          script.addEventListener("error", () => {
+            window.__SPLINE_LIB_READY__ = false;
+          });
           document.head.appendChild(script);
 
           // warm fetch
@@ -67,7 +77,6 @@
       style="position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden;"
       aria-hidden="true"
     >
-      <!-- On le déplace ensuite dans la zone visible via main.js -->
       <spline-viewer
         id="spline-boot"
         url="https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2"
@@ -103,14 +112,13 @@
         <div class="robotShell" aria-label="Robot Flexplore">
           <div class="ring" aria-hidden="true"></div>
 
-          <!-- Zone visible: le spline-viewer est injecté ici -->
           <div id="robotStage" class="robotStage">
             <div id="robotFallback" class="robotFallback" aria-hidden="true"></div>
           </div>
         </div>
 
         <h1 id="fullName" class="name">Florian Fournier</h1>
-        <p id="tagline" class="subtitle">Expert en IA & Automatisation</p>
+        <p id="tagline" class="subtitle">Integrations IA et automatisation dans les PME</p>
 
         <div class="ctaRow">
           <button id="btnAddContact" class="btn outline" type="button">
