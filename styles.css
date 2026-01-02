@@ -100,52 +100,54 @@ a{ color: inherit; text-decoration:none; }
   margin-top: 2px;
 }
 
-/* MASQUE CIRCULAIRE */
+/* MASQUE CIRCULAIRE (seul endroit qui "coupe") */
 .robotMask{
   position:absolute;
   inset: 8%;
   border-radius: 999px;
-  overflow: hidden;
+  overflow: hidden;      /* <- le masque */
   z-index: 1;
 }
 
-/* conteneur robot dans le masque */
+/* conteneur robot: NE DOIT PAS RE-COUPER */
 .robotStage{
   width: 100%;
   height: 100%;
   position: absolute;
   inset: 0;
-  border-radius: 999px;
-  overflow: hidden;
+
+  overflow: visible;     /* <- IMPORTANT: supprime le "cadre invisible" */
+  border-radius: 0;      /* <- IMPORTANT */
+
   display:flex;
   align-items:center;
   justify-content:center;
 }
 
 /*
-  FIX IMPORTANT:
-  on centre vraiment le viewer, puis on ajuste.
-  - à droite: augmente translateX(...)
+  Le cadrage du robot se fait ICI.
+  - plus à droite: augmente translateX(...)
   - plus bas: augmente translateY(...)
-  - moins coupé: baisse scale(...)
+  - moins zoom: baisse scale(...)
 */
 .robotStage spline-viewer{
   position: absolute;
   left: 50%;
   top: 50%;
+
   width: 175%;
   height: 175%;
   display:block;
 
-  /* réglage qui évite de couper la tête + bas */
-  transform: translate(-50%, -50%) translateX(6%) translateY(8%) scale(.64);
+  /* réglage "safe" pour éviter coupe gauche/haut */
+  transform: translate(-50%, -50%) translateX(10%) translateY(12%) scale(.60);
   transform-origin: 50% 50%;
 }
 
 /* rond (bordure) par-dessus le masque */
 .ring{
   position:absolute;
-  inset: 8%;
+  inset: 8%;             /* doit matcher .robotMask */
   border-radius: 999px;
   border: 3px solid rgba(31,183,255,.9);
   box-shadow:
