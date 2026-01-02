@@ -75,20 +75,17 @@ async function mountSplineWithWait() {
 
   if (!stage) return;
 
-  // Si Spline désactivé par settings (reduce motion / save-data / 2g)
   if (!enable) {
     if (fallback) fallback.style.display = "flex";
     return;
   }
 
-  // Attendre que la lib Spline soit prête + que le custom element existe
-  const waitMs = 6000;
+  const waitMs = 8000;
 
   try {
     const waitForLib = new Promise((resolve, reject) => {
       const start = Date.now();
       const tick = () => {
-        // soit script loaded, soit custom element défini
         if (window.__SPLINE_LIB_READY__ === true) return resolve();
         if (customElements.get("spline-viewer")) return resolve();
         if (Date.now() - start > waitMs) return reject(new Error("Spline lib timeout"));
@@ -99,7 +96,6 @@ async function mountSplineWithWait() {
 
     await waitForLib;
 
-    // Sécurité: attendre la définition
     if (customElements.whenDefined) {
       await Promise.race([
         customElements.whenDefined("spline-viewer"),
@@ -111,15 +107,12 @@ async function mountSplineWithWait() {
 
     if (fallback) fallback.style.display = "none";
 
-    // Monter le viewer dans la zone visible
     stage.appendChild(preloadViewer);
 
-    // S'assure que l'url est bien présente (au cas où)
     if (!preloadViewer.getAttribute("url") && window.__SPLINE_SCENE_URL__) {
       preloadViewer.setAttribute("url", window.__SPLINE_SCENE_URL__);
     }
   } catch {
-    // Si ça rate (lib bloquée, réseau, etc) : fallback
     if (fallback) fallback.style.display = "flex";
   }
 }
@@ -138,7 +131,6 @@ function init() {
 
   setText("year", String(new Date().getFullYear()));
 
-  // Monter Spline après chargement DOM
   mountSplineWithWait();
 }
 
