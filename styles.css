@@ -124,8 +124,8 @@ a{ color: inherit; text-decoration:none; }
   width: 150%;
   height: 150%;
   display:block;
-  transform: translateX(20%) translateY(20%) scale(.74);
-  transform-origin: 50% 50%;
+  transform: translateX(600%) translateY(60%) scale(.74);
+  transform-origin: 50% 50%
 }
 
 /* rond au-dessus */
