@@ -12,12 +12,12 @@ const CONTACT = {
   website: "https://flexplore-ia.com",
   city: "Carcassonne",
 
-  // WhatsApp: par défaut j'ai mis le même numéro que ton tel (sans +)
+  // WhatsApp: par défaut identique au téléphone (sans +)
   whatsappE164: "33652692700",
 
   calendly: "https://calendly.com/flexplore/30min?back=1&month=2025-11",
 
-  // pas fourni
+  // Mets ton lien si tu veux, sinon on cache le bouton automatiquement
   linkedin: ""
 };
 
@@ -43,7 +43,7 @@ function buildVCard() {
     CONTACT.phoneE164 ? `TEL;TYPE=CELL,VOICE:${escVCard(CONTACT.phoneE164)}` : null,
     CONTACT.email ? `EMAIL;TYPE=INTERNET:${escVCard(CONTACT.email)}` : null,
     CONTACT.website ? `URL:${escVCard(CONTACT.website)}` : null,
-    CONTACT.city ? `ADR;TYPE=HOME:;;${escVCard(CONTACT.city)};;;;` : null,
+    CONTACT.city ? `ADR;TYPE=WORK:;;${escVCard(CONTACT.city)};;;;` : null,
     "END:VCARD"
   ].filter(Boolean);
 
@@ -59,21 +59,12 @@ function makeVCardFile() {
   return { blob, fileName };
 }
 
-function setText(id, text) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = text;
-}
-function setHref(id, href) {
-  const el = document.getElementById(id);
-  if (el) el.setAttribute("href", href);
-}
-
 function toast(msg) {
   const t = document.createElement("div");
   t.textContent = msg;
   t.style.position = "fixed";
   t.style.left = "50%";
-  t.style.bottom = "88px";
+  t.style.bottom = "22px";
   t.style.transform = "translateX(-50%)";
   t.style.padding = "10px 12px";
   t.style.borderRadius = "999px";
@@ -81,32 +72,10 @@ function toast(msg) {
   t.style.border = "1px solid rgba(255,255,255,.18)";
   t.style.color = "rgba(255,255,255,.92)";
   t.style.zIndex = "9999";
-  t.style.fontWeight = "700";
+  t.style.fontWeight = "800";
   t.style.fontSize = "13px";
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 1700);
-}
-
-async function copyToClipboard(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.select();
-    try {
-      const ok = document.execCommand("copy");
-      ta.remove();
-      return ok;
-    } catch {
-      ta.remove();
-      return false;
-    }
-  }
+  setTimeout(() => t.remove(), 1600);
 }
 
 async function downloadVCard() {
@@ -121,7 +90,7 @@ async function downloadVCard() {
   a.remove();
 
   setTimeout(() => URL.revokeObjectURL(url), 1500);
-  toast("Fichier contact généré (.vcf)");
+  toast("Fiche contact prête (.vcf)");
 }
 
 async function shareVCard() {
@@ -132,7 +101,8 @@ async function shareVCard() {
     navigator.canShare({ files: [new File([blob], fileName, { type: blob.type })] });
 
   if (!navigator.share || !canShareFiles) {
-    toast("Partage non supporté ici. Utilise 'Ajouter le contact'.");
+    // fallback: téléchargement
+    await downloadVCard();
     return;
   }
 
@@ -148,54 +118,56 @@ async function shareVCard() {
   }
 }
 
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function setHref(id, href) {
+  const el = document.getElementById(id);
+  if (el) el.setAttribute("href", href);
+}
+
+function hideIfEmpty(id, value) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!value || value === "#" || String(value).trim() === "") {
+    el.style.display = "none";
+  }
+}
+
 function init() {
   const fullName = `${CONTACT.firstName} ${CONTACT.lastName}`.trim();
-  setText("fullName", fullName || "Contact");
+
+  // texte
+  setText("fullName", fullName);
   setText("tagline", CONTACT.title || "");
-  setText("city", CONTACT.city || "");
+  setText("location", CONTACT.city || "");
+  setText("avatarInitial", (CONTACT.firstName?.[0] || "F").toUpperCase());
 
-  setHref("phoneLink", CONTACT.phoneE164 ? `tel:${CONTACT.phoneE164}` : "#");
-  setText("phoneLink", CONTACT.phoneDisplay || CONTACT.phoneE164 || "Téléphone");
+  setText("phoneText", CONTACT.phoneDisplay || CONTACT.phoneE164 || "");
+  setText("emailText", CONTACT.email || "");
+  setText("websiteText", (CONTACT.website || "").replace(/^https?:\/\//, ""));
 
-  setHref("emailLink", CONTACT.email ? `mailto:${CONTACT.email}` : "#");
-  setText("emailLink", CONTACT.email || "Email");
-
-  setHref("websiteLink", CONTACT.website || "#");
-  setText("websiteLink", (CONTACT.website || "").replace(/^https?:\/\//, "") || "Site");
-
+  // liens
   setHref("btnCall", CONTACT.phoneE164 ? `tel:${CONTACT.phoneE164}` : "#");
-  setHref("barCall", CONTACT.phoneE164 ? `tel:${CONTACT.phoneE164}` : "#");
+  setHref("btnEmail", CONTACT.email ? `mailto:${CONTACT.email}` : "#");
+  setHref("btnWebsite", CONTACT.website || "#");
+  setHref("btnCalendly", CONTACT.calendly || "#");
 
   const wa = CONTACT.whatsappE164 ? `https://wa.me/${CONTACT.whatsappE164}` : "#";
   setHref("btnWhatsapp", wa);
-  setHref("btnWhatsapp2", wa);
-  setHref("barWhatsapp", wa);
 
-  setHref("btnEmail", CONTACT.email ? `mailto:${CONTACT.email}` : "#");
-  setHref("btnEmail2", CONTACT.email ? `mailto:${CONTACT.email}` : "#");
-
-  setHref("btnSms", CONTACT.phoneE164 ? `sms:${CONTACT.phoneE164}` : "#");
-
-  setHref("btnCalendly", CONTACT.calendly || "#");
-
-  // LinkedIn: si pas fourni, on laisse # (tu peux aussi mettre ton lien plus tard)
   setHref("btnLinkedIn", CONTACT.linkedin || "#");
 
+  // cache LinkedIn si pas fourni
+  hideIfEmpty("btnLinkedIn", CONTACT.linkedin);
+
+  // boutons vCard
   const btnAdd = document.getElementById("btnAddContact");
-  const barAdd = document.getElementById("barAdd");
   const btnShare = document.getElementById("btnShareContact");
-
   if (btnAdd) btnAdd.addEventListener("click", downloadVCard);
-  if (barAdd) barAdd.addEventListener("click", downloadVCard);
   if (btnShare) btnShare.addEventListener("click", shareVCard);
-
-  const btnCopy = document.getElementById("btnCopyPhone");
-  if (btnCopy) {
-    btnCopy.addEventListener("click", async () => {
-      const ok = await copyToClipboard(CONTACT.phoneDisplay || CONTACT.phoneE164 || "");
-      toast(ok ? "Numéro copié" : "Impossible de copier");
-    });
-  }
 
   setText("year", String(new Date().getFullYear()));
 }
