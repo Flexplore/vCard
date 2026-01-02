@@ -9,7 +9,7 @@
 
     <link rel="stylesheet" href="./styles.css" />
 
-    <!-- Spline: loader conditionnel + preload scène (version corrigée) -->
+    <!-- Spline: loader conditionnel + preload scène -->
     <script>
       (function () {
         const SCENE_URL =
@@ -22,10 +22,6 @@
         const effectiveType = navigator.connection?.effectiveType || "";
         const slowNetwork = ["slow-2g", "2g"].includes(effectiveType);
 
-        // IMPORTANT :
-        // On NE bloque plus Spline sur "low cpu" / "low memory" car ça désactive sur plein de téléphones.
-        // On bloque seulement si l'utilisateur a demandé réduire les animations,
-        // ou si Save-Data / réseau très lent.
         const shouldEnableSpline = !(prefersReducedMotion || saveData || slowNetwork);
 
         window.__SPLINE_SCENE_URL__ = SCENE_URL;
@@ -33,7 +29,6 @@
         window.__SPLINE_LIB_READY__ = false;
 
         if (shouldEnableSpline) {
-          // preload lib
           const preload = document.createElement("link");
           preload.rel = "modulepreload";
           preload.href = "https://unpkg.com/@splinetool/viewer@1/build/spline-viewer.js";
@@ -41,7 +36,6 @@
           preload.fetchPriority = "high";
           document.head.appendChild(preload);
 
-          // preload scène
           const splineFetch = document.createElement("link");
           splineFetch.rel = "preload";
           splineFetch.as = "fetch";
@@ -50,7 +44,6 @@
           splineFetch.fetchPriority = "high";
           document.head.appendChild(splineFetch);
 
-          // load lib
           const script = document.createElement("script");
           script.type = "module";
           script.src = "https://unpkg.com/@splinetool/viewer@1/build/spline-viewer.js";
@@ -63,7 +56,6 @@
           });
           document.head.appendChild(script);
 
-          // warm fetch
           fetch(SCENE_URL, { mode: "cors" }).catch(() => {});
         }
       })();
@@ -86,35 +78,29 @@
     <main class="screen">
       <header class="top">
         <div class="brand">
-          <div class="mark" aria-hidden="true">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 2.5c2.2 0 4 1.8 4 4 0 .6-.1 1.1-.3 1.6 2.4.8 4.3 3.1 4.3 5.9 0 3.5-2.8 6.3-6.3 6.3H10.3C6.8 20.3 4 17.5 4 14c0-2.8 1.9-5.1 4.3-5.9-.2-.5-.3-1-.3-1.6 0-2.2 1.8-4 4-4Z"
-                stroke="currentColor"
-                stroke-width="1.6"
-                opacity=".9"
-              />
-              <path
-                d="M9.2 13.7c.7-1.3 2-2.2 3.5-2.2 1.8 0 3.3 1.2 3.8 2.9"
-                stroke="currentColor"
-                stroke-width="1.6"
-                stroke-linecap="round"
-              />
-            </svg>
-          </div>
-          <div class="brandText">
-            <div class="brandName">Flexplore</div>
-          </div>
+          <img
+            class="logoImg"
+            src="https://i.imgur.com/HWrE6VI.png"
+            alt="Flexplore"
+            loading="eager"
+            decoding="async"
+          />
+          <div class="brandName">Flexplore</div>
         </div>
       </header>
 
       <section class="hero">
         <div class="robotShell" aria-label="Robot Flexplore">
-          <div class="ring" aria-hidden="true"></div>
-
+          <!-- Le robot/animation (Spline) -->
           <div id="robotStage" class="robotStage">
             <div id="robotFallback" class="robotFallback" aria-hidden="true"></div>
+
+            <!-- cache le badge "Built with Spline" (overlay) -->
+            <div class="splineBadgeCover" aria-hidden="true"></div>
           </div>
+
+          <!-- Le rond PAR DESSUS le robot -->
+          <div class="ring" aria-hidden="true"></div>
         </div>
 
         <h1 id="fullName" class="name">Florian Fournier</h1>
