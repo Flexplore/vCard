@@ -1,137 +1,98 @@
-const CONTACT = {
-  firstName: "Florian",
-  lastName: "Fournier",
-  organization: "Flexplore",
-  title: "Integrations IA et automatisation dans les PME",
+(function () {
+  // Année footer
+  const yearEl = document.getElementById("year");
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
-  phoneE164: "+33652692700",
-  phoneDisplay: "+33 6 52 69 27 00",
+  // Fallback si Spline non chargé / désactivé
+  const splineEnabled = !!window.__SPLINE_ENABLED__;
+  const splineEl = document.getElementById("splineRobot");
+  const fallbackEl = document.getElementById("robotFallback");
 
-  email: "contact@flexplore-ia.com",
-  website: "https://flexplore-ia.com",
-  city: "Carcassonne",
-
-  whatsappE164: "33652692700",
-  calendly: "https://calendly.com/flexplore/30min?back=1&month=2025-11"
-};
-
-function escVCard(value) {
-  return String(value ?? "")
-    .replace(/\\/g, "\\\\")
-    .replace(/\n/g, "\\n")
-    .replace(/,/g, "\\,")
-    .replace(/;/g, "\\;");
-}
-
-function buildVCard() {
-  const fullName = `${CONTACT.firstName} ${CONTACT.lastName}`.trim();
-  const lines = [
-    "BEGIN:VCARD",
-    "VERSION:3.0",
-    `N:${escVCard(CONTACT.lastName)};${escVCard(CONTACT.firstName)};;;`,
-    `FN:${escVCard(fullName)}`,
-    CONTACT.organization ? `ORG:${escVCard(CONTACT.organization)}` : null,
-    CONTACT.title ? `TITLE:${escVCard(CONTACT.title)}` : null,
-    CONTACT.phoneE164 ? `TEL;TYPE=CELL,VOICE:${escVCard(CONTACT.phoneE164)}` : null,
-    CONTACT.email ? `EMAIL;TYPE=INTERNET:${escVCard(CONTACT.email)}` : null,
-    CONTACT.website ? `URL:${escVCard(CONTACT.website)}` : null,
-    CONTACT.city ? `ADR;TYPE=WORK:;;${escVCard(CONTACT.city)};;;;` : null,
-    "END:VCARD"
-  ].filter(Boolean);
-
-  return lines.join("\r\n");
-}
-
-function downloadVCard() {
-  const vcf = buildVCard();
-  const blob = new Blob([vcf], { type: "text/vcard;charset=utf-8" });
-  const fileName = "florian-fournier.vcf";
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1500);
-}
-
-function setText(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = value;
-}
-
-function setHref(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.setAttribute("href", value);
-}
-
-async function mountSplineWithWait() {
-  const enable = window.__ENABLE_SPLINE__ === true;
-  const stage = document.getElementById("robotStage");
-  const fallback = document.getElementById("robotFallback");
-  const preloadViewer = document.getElementById("spline-boot");
-
-  if (!stage) return;
-
-  if (!enable) {
-    if (fallback) fallback.style.display = "flex";
-    return;
+  function showFallback() {
+    if (fallbackEl) fallbackEl.style.display = "block";
+    if (splineEl) splineEl.style.display = "none";
+  }
+  function showSpline() {
+    if (fallbackEl) fallbackEl.style.display = "none";
+    if (splineEl) splineEl.style.display = "block";
   }
 
-  const waitMs = 8000;
+  if (!splineEnabled) {
+    showFallback();
+  } else {
+    // Par défaut on tente d'afficher Spline, si ça ne charge pas -> fallback
+    showSpline();
+    // Si au bout de 3s le viewer n’a rien rendu, on bascule fallback
+    setTimeout(() => {
+      // Si la lib n’a pas été chargée, spline-viewer reste un élément “inconnu”
+      // On détecte via l’existence de sa méthode/props internes (simple et robuste)
+      const isUpgraded = splineEl && splineEl.tagName.toLowerCase() === "spline-viewer" && splineEl.shadowRoot;
+      if (!isUpgraded) showFallback();
+    }, 3000);
+  }
 
-  try {
-    const waitForLib = new Promise((resolve, reject) => {
-      const start = Date.now();
-      const tick = () => {
-        if (window.__SPLINE_LIB_READY__ === true) return resolve();
-        if (customElements.get("spline-viewer")) return resolve();
-        if (Date.now() - start > waitMs) return reject(new Error("Spline lib timeout"));
-        requestAnimationFrame(tick);
-      };
-      tick();
+  // vCard
+  const btnVcf = document.getElementById("btnVcf");
+  if (btnVcf) {
+    btnVcf.addEventListener("click", () => {
+      const vcf = buildVCard({
+        firstName: "Florian",
+        lastName: "Fournier",
+        org: "Flexplore",
+        title: "Intégrations IA et automatisation dans les PME",
+        phone: "+33652692700",
+        email: "contact@flexplore-ia.com",
+        website: "https://flexplore-ia.com",
+        city: "Carcassonne",
+        country: "France",
+        whatsapp: "https://wa.me/33652692700",
+      });
+
+      downloadTextFile(vcf, "florian-fournier-flexplore.vcf", "text/vcard;charset=utf-8");
     });
-
-    await waitForLib;
-
-    if (customElements.whenDefined) {
-      await Promise.race([
-        customElements.whenDefined("spline-viewer"),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("whenDefined timeout")), waitMs))
-      ]);
-    }
-
-    if (!preloadViewer) throw new Error("No preload viewer found");
-
-    if (fallback) fallback.style.display = "none";
-
-    stage.appendChild(preloadViewer);
-
-    if (!preloadViewer.getAttribute("url") && window.__SPLINE_SCENE_URL__) {
-      preloadViewer.setAttribute("url", window.__SPLINE_SCENE_URL__);
-    }
-  } catch {
-    if (fallback) fallback.style.display = "flex";
   }
-}
 
-function init() {
-  const fullName = `${CONTACT.firstName} ${CONTACT.lastName}`.trim();
+  function esc(s) {
+    return String(s ?? "")
+      .replace(/\\/g, "\\\\")
+      .replace(/\n/g, "\\n")
+      .replace(/,/g, "\\,")
+      .replace(/;/g, "\\;");
+  }
 
-  setText("fullName", fullName);
-  setText("tagline", CONTACT.title);
+  function buildVCard(data) {
+    // vCard 3.0 (compatible iPhone/Android)
+    const lines = [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      `N:${esc(data.lastName)};${esc(data.firstName)};;;`,
+      `FN:${esc(`${data.firstName} ${data.lastName}`)}`,
+      data.org ? `ORG:${esc(data.org)}` : null,
+      data.title ? `TITLE:${esc(data.title)}` : null,
+      data.phone ? `TEL;TYPE=CELL:${esc(data.phone)}` : null,
+      data.email ? `EMAIL;TYPE=INTERNET:${esc(data.email)}` : null,
+      data.website ? `URL:${esc(data.website)}` : null,
+      (data.city || data.country) ? `ADR;TYPE=WORK:;;${esc(data.city || "")};;;${esc(data.country || "")}` : null,
+      data.whatsapp ? `X-SOCIALPROFILE;type=whatsapp:${esc(data.whatsapp)}` : null,
+      "END:VCARD",
+    ].filter(Boolean);
 
-  setHref("btnCalendly", CONTACT.calendly);
-  setHref("btnWebsite", CONTACT.website);
+    return lines.join("\r\n");
+  }
 
-  const btnAdd = document.getElementById("btnAddContact");
-  if (btnAdd) btnAdd.addEventListener("click", downloadVCard);
+  function downloadTextFile(content, filename, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
 
-  setText("year", String(new Date().getFullYear()));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
 
-  mountSplineWithWait();
-}
-
-document.addEventListener("DOMContentLoaded", init);
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 0);
+  }
+})();
