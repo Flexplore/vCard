@@ -3,155 +3,146 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Carte de visite - Florian Fournier</title>
-    <meta name="description" content="Coordonnées, services, et ajout du contact en un clic." />
+    <title>Florian Fournier • Flexplore</title>
+    <meta name="description" content="Carte de visite numérique : ajout contact, WhatsApp, appel, email, RDV." />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Carte de visite - Florian Fournier" />
-    <meta property="og:description" content="Coordonnées, services, et ajout du contact en un clic." />
+    <meta property="og:title" content="Florian Fournier • Flexplore" />
+    <meta property="og:description" content="Carte de visite numérique : ajout contact, WhatsApp, appel, email, RDV." />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="fr_FR" />
 
-    <meta name="theme-color" content="#0b1020" />
+    <meta name="theme-color" content="#08101f" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
+
   <body>
-    <main class="wrap">
-      <header class="card hero">
-        <div class="hero-top">
-          <div class="avatar" aria-hidden="true">F</div>
+    <main class="page">
+      <section class="card">
+        <header class="header">
+          <div class="brand">
+            <div class="logo" aria-hidden="true">
+              <!-- Petit logo "glow" inspiré style Flexplore -->
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2.5c2.2 0 4 1.8 4 4 0 .6-.1 1.1-.3 1.6 2.4.8 4.3 3.1 4.3 5.9 0 3.5-2.8 6.3-6.3 6.3H10.3C6.8 20.3 4 17.5 4 14c0-2.8 1.9-5.1 4.3-5.9-.2-.5-.3-1-.3-1.6 0-2.2 1.8-4 4-4Z" stroke="currentColor" stroke-width="1.6" opacity=".9"/>
+                <path d="M9.2 13.7c.7-1.3 2-2.2 3.5-2.2 1.8 0 3.3 1.2 3.8 2.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="brandText">
+              <div class="brandName">Flexplore</div>
+              <div class="brandTag">Carte de visite</div>
+            </div>
+          </div>
+        </header>
 
-          <div class="hero-id">
+        <div class="profile">
+          <div class="avatar" aria-hidden="true">
+            <span id="avatarInitial">F</span>
+          </div>
+
+          <div class="profileText">
             <h1 id="fullName">Florian Fournier</h1>
-            <p id="tagline" class="muted">Integrations IA et automatisation dans les PME</p>
-            <div class="chips" id="chips">
-              <span class="chip">Agents vocaux</span>
-              <span class="chip">n8n</span>
-              <span class="chip">PME</span>
-            </div>
+            <p id="tagline">Integrations IA et automatisation dans les PME</p>
+            <p id="location" class="muted">Carcassonne</p>
           </div>
         </div>
 
-        <div class="hero-actions">
+        <div class="primaryActions">
           <button id="btnAddContact" class="btn primary" type="button">
-            Ajouter le contact
+            Fiche contact
           </button>
 
-          <button id="btnShareContact" class="btn" type="button">
-            Partager le contact
+          <button id="btnShareContact" class="btn soft" type="button">
+            Partager
           </button>
+        </div>
 
-          <a id="btnCall" class="btn" href="#" rel="nofollow">
-            Appeler
+        <div class="quickActions" aria-label="Actions rapides">
+          <a id="btnCall" class="iconBtn" href="#" aria-label="Appeler">
+            <span class="icon" aria-hidden="true">
+              <!-- phone -->
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M7 4.5l3 2-1.2 2c-.3.6-.1 1.3.4 1.8l4.5 4.5c.5.5 1.2.7 1.8.4l2-1.2 2 3c.3.5.2 1.2-.2 1.6l-1.2 1.2c-1 1-2.4 1.4-3.8 1-3.1-.9-6.5-3.4-9-5.9C3.9 12.4 1.4 9 2.3 5.9c.4-1.4 0-2.8 1-3.8L4.5 1.9c.4-.4 1.1-.5 1.6-.2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="label">Appeler</span>
           </a>
 
-          <a id="btnWhatsapp" class="btn" href="#" rel="nofollow">
-            WhatsApp
+          <a id="btnWhatsapp" class="iconBtn" href="#" aria-label="WhatsApp">
+            <span class="icon" aria-hidden="true">
+              <!-- chat -->
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M20 12c0 4.4-3.6 8-8 8-1.2 0-2.3-.2-3.3-.6L4 20l.6-4.7c-.4-1-.6-2.1-.6-3.3 0-4.4 3.6-8 8-8s8 3.6 8 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M8.2 11.8h.01M12 11.8h.01M15.8 11.8h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="label">WhatsApp</span>
+          </a>
+
+          <a id="btnEmail" class="iconBtn" href="#" aria-label="Email">
+            <span class="icon" aria-hidden="true">
+              <!-- mail -->
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M4 7.5c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2v-9Z" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M5 8l7 5 7-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="label">Email</span>
+          </a>
+
+          <a id="btnWebsite" class="iconBtn" href="#" target="_blank" rel="noreferrer" aria-label="Site">
+            <span class="icon" aria-hidden="true">
+              <!-- globe -->
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M3.5 12h17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M12 3c2.6 2.6 2.6 15.4 0 18-2.6-2.6-2.6-15.4 0-18Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="label">Site</span>
+          </a>
+
+          <a id="btnCalendly" class="iconBtn" href="#" target="_blank" rel="noreferrer" aria-label="RDV">
+            <span class="icon" aria-hidden="true">
+              <!-- calendar -->
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M7 3.5v3M17 3.5v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M4.5 8.2h15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M6.5 5.8h11c1.1 0 2 .9 2 2v11.2c0 1.1-.9 2-2 2h-11c-1.1 0-2-.9-2-2V7.8c0-1.1.9-2 2-2Z" stroke="currentColor" stroke-width="1.6"/>
+              </svg>
+            </span>
+            <span class="label">RDV</span>
+          </a>
+
+          <a id="btnLinkedIn" class="iconBtn" href="#" target="_blank" rel="noreferrer" aria-label="LinkedIn">
+            <span class="icon" aria-hidden="true">
+              <!-- in -->
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
+                <path d="M6.5 9.5v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M6.5 6.7h.01" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+                <path d="M11 18.5v-5.2c0-1.3.8-2.3 2.2-2.3 1.5 0 2.3 1 2.3 2.3v5.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M11 12.2v-2.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span class="label">LinkedIn</span>
           </a>
         </div>
 
-        <div class="divider"></div>
-
-        <section class="grid2">
-          <div class="info">
-            <h2>Coordonnées</h2>
-
-            <ul class="list">
-              <li>
-                <span class="k">Téléphone</span>
-                <span class="v">
-                  <a id="phoneLink" href="#">+33 6 52 69 27 00</a>
-                  <button id="btnCopyPhone" class="linkbtn" type="button">Copier</button>
-                </span>
-              </li>
-
-              <li>
-                <span class="k">Email</span>
-                <span class="v">
-                  <a id="emailLink" href="#">contact@flexplore-ia.com</a>
-                </span>
-              </li>
-
-              <li>
-                <span class="k">Site</span>
-                <span class="v">
-                  <a id="websiteLink" href="#" target="_blank" rel="noreferrer">flexplore-ia.com</a>
-                </span>
-              </li>
-
-              <li>
-                <span class="k">Ville</span>
-                <span id="city" class="v">Carcassonne</span>
-              </li>
-            </ul>
+        <div class="meta">
+          <div class="metaRow">
+            <span class="muted" id="phoneText">+33 6 52 69 27 00</span>
+            <span class="dot">•</span>
+            <span class="muted" id="emailText">contact@flexplore-ia.com</span>
           </div>
-
-          <div class="info">
-            <h2>Liens rapides</h2>
-
-            <div class="quick">
-              <a id="btnEmail" class="btn" href="#">Envoyer un email</a>
-              <a id="btnSms" class="btn" href="#">Envoyer un SMS</a>
-              <a id="btnCalendly" class="btn" href="#" target="_blank" rel="noreferrer">Prendre RDV</a>
-              <a id="btnLinkedIn" class="btn" href="#" target="_blank" rel="noreferrer">LinkedIn</a>
-            </div>
-
-            <p class="hint muted">
-              Astuce : après scan NFC, ajoute le site en favori. Le bouton “Ajouter le contact” génère un fichier .vcf importable.
-            </p>
+          <div class="metaRow">
+            <span class="muted" id="websiteText">flexplore-ia.com</span>
           </div>
-        </section>
-      </header>
-
-      <section class="card">
-        <h2>Services</h2>
-        <p class="muted">Ce que je propose, rapidement.</p>
-
-        <div class="services">
-          <article class="svc">
-            <h3>Intégrations IA</h3>
-            <p>IA connectée à tes outils : CRM, email, WhatsApp, formulaires, bases de données.</p>
-          </article>
-
-          <article class="svc">
-            <h3>Automatisations PME</h3>
-            <p>Workflows sur-mesure : n8n, webhooks, Google Sheets, Supabase, notifications.</p>
-          </article>
-
-          <article class="svc">
-            <h3>Agents vocaux IA</h3>
-            <p>Qualification, support, prise de RDV, scénarios métiers. Connexion aux outils.</p>
-          </article>
-
-          <article class="svc">
-            <h3>Assistants IA</h3>
-            <p>Chatbots et assistants internes avec base de connaissances et réponses fiables.</p>
-          </article>
         </div>
       </section>
 
-      <section class="card">
-        <h2>Un besoin ?</h2>
-        <p class="muted">Dis-moi ce que tu veux automatiser, je te réponds vite.</p>
-
-        <div class="cta">
-          <a id="btnWhatsapp2" class="btn primary" href="#">M’écrire sur WhatsApp</a>
-          <a id="btnEmail2" class="btn" href="#">M’envoyer un email</a>
-        </div>
-      </section>
-
-      <footer class="footer muted">
-        <span>© <span id="year"></span> Florian Fournier</span>
-        <span class="dot">•</span>
-        <span>Fait pour NFC</span>
+      <footer class="footer">
+        <span class="muted">© <span id="year"></span> Flexplore</span>
       </footer>
     </main>
-
-    <div class="bottomBar">
-      <a id="barCall" class="barBtn" href="#">Appel</a>
-      <a id="barWhatsapp" class="barBtn" href="#">WhatsApp</a>
-      <button id="barAdd" class="barBtn primary" type="button">Ajouter</button>
-    </div>
 
     <script src="./main.js"></script>
   </body>
