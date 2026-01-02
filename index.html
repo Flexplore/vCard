@@ -9,7 +9,6 @@
 
     <link rel="stylesheet" href="./styles.css" />
 
-    <!-- Spline: loader conditionnel + preload scène -->
     <script>
       (function () {
         const SCENE_URL =
@@ -63,7 +62,6 @@
   </head>
 
   <body>
-    <!-- Préchargement / instanciation du robot (hors écran) -->
     <div
       id="spline-preload"
       style="position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden;"
@@ -91,15 +89,14 @@
 
       <section class="hero">
         <div class="robotShell" aria-label="Robot Flexplore">
-          <!-- Le robot/animation (Spline) -->
-          <div id="robotStage" class="robotStage">
-            <div id="robotFallback" class="robotFallback" aria-hidden="true"></div>
-
-            <!-- cache le badge "Built with Spline" (overlay) -->
-            <div class="splineBadgeCover" aria-hidden="true"></div>
+          <!-- MASQUE CIRCULAIRE : tout ce qui dépasse est coupé -->
+          <div class="robotMask">
+            <div id="robotStage" class="robotStage">
+              <div id="robotFallback" class="robotFallback" aria-hidden="true"></div>
+            </div>
           </div>
 
-          <!-- Le rond PAR DESSUS le robot -->
+          <!-- le rond (bordure) par-dessus -->
           <div class="ring" aria-hidden="true"></div>
         </div>
 
