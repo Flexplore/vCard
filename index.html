@@ -7,7 +7,7 @@
   <title>Carte NFC • Florian Fournier (Flexplore)</title>
 
   <!-- cache-buster: incrémente v=2, v=3... quand tu modifies -->
-  <link rel="stylesheet" href="styles.css?v=12" />
+  <link rel="stylesheet" href="styles.css?v=13" />
 
   <!-- Précharge logo -->
   <link rel="preload" as="image" href="https://i.imgur.com/HWrE6VI.png" />
@@ -84,29 +84,34 @@
       </div>
 
       <h1 class="name">Florian Fournier</h1>
-      <p class="subtitle">Intégrations IA et automatisation dans les PME</p>
+      <p class="subtitle">Intégrations IA et automatisation pour les PME</p>
 
       <div class="ctaRow">
-        <button class="btn outline" id="btnVcf" type="button">
+        <!-- inversé: Enregistrer contact devient bleu + texte plus gros -->
+        <button class="btn primary big" id="btnVcf" type="button">
           <span class="btnIcon" aria-hidden="true">⬇</span>
           Enregistrer contact
         </button>
 
-        <a class="btn primary" id="btnCalendly" href="https://calendly.com/flexplore/30min?back=1&month=2025-11" target="_blank" rel="noopener">
+        <!-- inversé: Réserver devient outline + texte plus petit -->
+        <a class="btn outline small" id="btnCalendly" href="https://calendly.com/flexplore/30min?back=1&month=2025-11" target="_blank" rel="noopener">
           <span class="btnIcon" aria-hidden="true">📅</span>
           Réserver ma consultation
         </a>
       </div>
+    </section>
 
+    <!-- bande sombre bas de page (évite le “footer bleu différent”) -->
+    <div class="footPanel">
       <a class="circleBtn" href="https://flexplore-ia.com" target="_blank" rel="noopener" aria-label="Ouvrir le site">
         <span aria-hidden="true">🌐</span>
       </a>
-    </section>
 
-    <footer class="foot">© <span id="year"></span> Flexplore</footer>
+      <footer class="foot">© <span id="year"></span> Flexplore</footer>
+    </div>
   </main>
 
   <!-- cache-buster: incrémente v=2, v=3... quand tu modifies -->
-  <script src="main.js?v=12"></script>
+  <script src="main.js?v=13"></script>
 </body>
 </html>
