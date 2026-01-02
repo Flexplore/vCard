@@ -58,7 +58,7 @@ a{ color: inherit; text-decoration:none; }
   position: relative;
 }
 
-/* FIX 1: on force la taille du logo quoi qu'il arrive (même si un ancien CSS impose img{width:100%}) */
+/* taille logo forcée (au cas où un style global img { width:100% } traîne) */
 .logoImg{
   width: 22px !important;
   height: 22px !important;
@@ -86,12 +86,12 @@ a{ color: inherit; text-decoration:none; }
   padding: 10px 0 0;
 }
 
-/* FIX 2: taille plus petite pour éviter le scroll + centrage plus stable */
+/* zone robot */
 .robotShell{
-  width: min(320px, 86vw);
-  height: min(320px, 86vw);
-  max-height: 40vh;
-  max-width: 40vh;
+  width: min(330px, 88vw);
+  height: min(330px, 88vw);
+  max-height: 42vh;
+  max-width: 42vh;
   position: relative;
   display:flex;
   align-items:center;
@@ -114,19 +114,24 @@ a{ color: inherit; text-decoration:none; }
   z-index: 1;
 }
 
-/* FIX 3: on recentre le robot dans l'anneau (ajuste translate/scale) */
+/*
+  FIX principal :
+  - on recentre le robot dans l’anneau
+  - on évite qu’il parte complètement à gauche
+  Ajuste les % si besoin : translateX / translateY / scale
+*/
 .robotStage spline-viewer{
-  width: 132%;
-  height: 132%;
+  width: 150%;
+  height: 150%;
   display:block;
-  transform: translateX(0) translateY(10%) scale(.78);
+  transform: translateX(12%) translateY(10%) scale(.74);
   transform-origin: 50% 50%;
 }
 
 /* rond au-dessus */
 .ring{
   position:absolute;
-  inset: 14%;
+  inset: 16%;
   border-radius: 999px;
   border: 3px solid rgba(31,183,255,.9);
   box-shadow:
@@ -152,19 +157,22 @@ a{ color: inherit; text-decoration:none; }
   border: 1px solid rgba(255,255,255,.10);
 }
 
-/* FIX 4: cache plus fiable du badge "Built with Spline" (il est en bas à droite) */
+/*
+  FIX badge "Built with Spline":
+  Sur certains mobiles il se place au milieu/droite.
+  On met un cache plus large et plus haut, au-dessus du viewer.
+*/
 .splineBadgeCover{
   position:absolute;
-  right: 10px;
-  bottom: 14px;
-  top: auto;
-  width: 220px;
-  height: 86px;
+  right: -6px;
+  bottom: 36%;
+  width: 280px;
+  height: 120px;
   border-radius: 999px;
   background: rgba(7,12,27,.78);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  z-index: 2;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 999;
   pointer-events:none;
   opacity: .96;
 }
@@ -268,5 +276,9 @@ a{ color: inherit; text-decoration:none; }
 @media (max-width: 420px){
   .ctaRow{ grid-template-columns: 1fr; }
   .name{ font-size: 26px; }
-  .splineBadgeCover{ width: 200px; height: 82px; }
+  .splineBadgeCover{
+    width: 250px;
+    height: 110px;
+    bottom: 34%;
+  }
 }
