@@ -1,17 +1,24 @@
 // Modifie uniquement cet objet pour personnaliser tout le site + la vCard
 const CONTACT = {
-  firstName: "Flo",
-  lastName: "",
+  firstName: "Florian",
+  lastName: "Fournier",
   organization: "Flexplore",
-  title: "IA, agents vocaux, automatisations",
-  phoneE164: "+33600000000",         // format international recommandé
-  phoneDisplay: "+33 6 00 00 00 00", // affichage
-  email: "flo@email.fr",
-  website: "https://ton-site.fr",
-  city: "Carcassonne / Sommières",
-  whatsappE164: "33600000000", // sans +, sans espaces
-  calendly: "https://calendly.com/ton-lien",
-  linkedin: "https://www.linkedin.com/in/ton-profil/"
+  title: "Integrations IA et automatisation dans les PME",
+
+  phoneE164: "+33652692700",
+  phoneDisplay: "+33 6 52 69 27 00",
+
+  email: "contact@flexplore-ia.com",
+  website: "https://flexplore-ia.com",
+  city: "Carcassonne",
+
+  // WhatsApp: par défaut j'ai mis le même numéro que ton tel (sans +)
+  whatsappE164: "33652692700",
+
+  calendly: "https://calendly.com/flexplore/30min?back=1&month=2025-11",
+
+  // pas fourni
+  linkedin: ""
 };
 
 function escVCard(value) {
@@ -26,7 +33,6 @@ function buildVCard() {
   const fullName = `${CONTACT.firstName} ${CONTACT.lastName}`.trim();
 
   // vCard 3.0 (compatible iOS/Android)
-  // Note: PHOTO possible mais on reste minimal
   const lines = [
     "BEGIN:VCARD",
     "VERSION:3.0",
@@ -47,7 +53,9 @@ function buildVCard() {
 function makeVCardFile() {
   const vcf = buildVCard();
   const blob = new Blob([vcf], { type: "text/vcard;charset=utf-8" });
-  const fileName = `${(CONTACT.firstName || "contact").toLowerCase()}${CONTACT.lastName ? "-" + CONTACT.lastName.toLowerCase() : ""}.vcf`;
+  const fileName =
+    `${(CONTACT.firstName || "contact").toLowerCase()}` +
+    `${CONTACT.lastName ? "-" + CONTACT.lastName.toLowerCase() : ""}.vcf`;
   return { blob, fileName };
 }
 
@@ -84,7 +92,6 @@ async function copyToClipboard(text) {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
-    // fallback
     const ta = document.createElement("textarea");
     ta.value = text;
     ta.style.position = "fixed";
@@ -137,7 +144,7 @@ async function shareVCard() {
       files: [file]
     });
   } catch {
-    // l'utilisateur a fermé / annulé
+    // annulé
   }
 }
 
@@ -147,34 +154,33 @@ function init() {
   setText("tagline", CONTACT.title || "");
   setText("city", CONTACT.city || "");
 
-  // Hrefs
-  setHref("phoneLink", `tel:${CONTACT.phoneE164 || ""}`);
-  setText("phoneLink", CONTACT.phoneDisplay || CONTACT.phoneE164 || "");
+  setHref("phoneLink", CONTACT.phoneE164 ? `tel:${CONTACT.phoneE164}` : "#");
+  setText("phoneLink", CONTACT.phoneDisplay || CONTACT.phoneE164 || "Téléphone");
 
-  setHref("emailLink", `mailto:${CONTACT.email || ""}`);
-  setText("emailLink", CONTACT.email || "");
+  setHref("emailLink", CONTACT.email ? `mailto:${CONTACT.email}` : "#");
+  setText("emailLink", CONTACT.email || "Email");
 
   setHref("websiteLink", CONTACT.website || "#");
-  setText("websiteLink", (CONTACT.website || "").replace(/^https?:\/\//, "") || "");
+  setText("websiteLink", (CONTACT.website || "").replace(/^https?:\/\//, "") || "Site");
 
-  setHref("btnCall", `tel:${CONTACT.phoneE164 || ""}`);
-  setHref("barCall", `tel:${CONTACT.phoneE164 || ""}`);
+  setHref("btnCall", CONTACT.phoneE164 ? `tel:${CONTACT.phoneE164}` : "#");
+  setHref("barCall", CONTACT.phoneE164 ? `tel:${CONTACT.phoneE164}` : "#");
 
   const wa = CONTACT.whatsappE164 ? `https://wa.me/${CONTACT.whatsappE164}` : "#";
   setHref("btnWhatsapp", wa);
   setHref("btnWhatsapp2", wa);
   setHref("barWhatsapp", wa);
 
-  setHref("btnEmail", `mailto:${CONTACT.email || ""}`);
-  setHref("btnEmail2", `mailto:${CONTACT.email || ""}`);
+  setHref("btnEmail", CONTACT.email ? `mailto:${CONTACT.email}` : "#");
+  setHref("btnEmail2", CONTACT.email ? `mailto:${CONTACT.email}` : "#");
 
-  // SMS (certains navigateurs exigent un format spécial)
   setHref("btnSms", CONTACT.phoneE164 ? `sms:${CONTACT.phoneE164}` : "#");
 
   setHref("btnCalendly", CONTACT.calendly || "#");
+
+  // LinkedIn: si pas fourni, on laisse # (tu peux aussi mettre ton lien plus tard)
   setHref("btnLinkedIn", CONTACT.linkedin || "#");
 
-  // Boutons
   const btnAdd = document.getElementById("btnAddContact");
   const barAdd = document.getElementById("barAdd");
   const btnShare = document.getElementById("btnShareContact");
