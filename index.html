@@ -4,143 +4,151 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Florian Fournier • Flexplore</title>
-    <meta name="description" content="Carte de visite numérique : ajout contact, WhatsApp, appel, email, RDV." />
+    <meta name="description" content="Carte de visite : enregistrer le contact, réserver une consultation." />
+    <meta name="theme-color" content="#060b18" />
 
-    <meta property="og:title" content="Florian Fournier • Flexplore" />
-    <meta property="og:description" content="Carte de visite numérique : ajout contact, WhatsApp, appel, email, RDV." />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="fr_FR" />
-
-    <meta name="theme-color" content="#08101f" />
     <link rel="stylesheet" href="./styles.css" />
+
+    <!-- Spline: loader conditionnel + preload scène -->
+    <script>
+      (function () {
+        const SCENE_URL =
+          "https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2";
+
+        const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+        const lowCpu = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+                       (navigator.deviceMemory && navigator.deviceMemory <= 4);
+        const saveData = navigator.connection?.saveData === true;
+        const effectiveType = navigator.connection?.effectiveType || "";
+        const slowNetwork = ["slow-2g", "2g"].includes(effectiveType);
+
+        const shouldEnableSpline = !(prefersReducedMotion || lowCpu || saveData || slowNetwork);
+
+        // Expose pour main.js
+        window.__SPLINE_SCENE_URL__ = SCENE_URL;
+        window.__ENABLE_SPLINE__ = shouldEnableSpline;
+
+        if (shouldEnableSpline) {
+          // preload lib
+          const preload = document.createElement("link");
+          preload.rel = "modulepreload";
+          preload.href = "https://unpkg.com/@splinetool/viewer@1/build/spline-viewer.js";
+          preload.crossOrigin = "anonymous";
+          preload.fetchPriority = "high";
+          document.head.appendChild(preload);
+
+          // preload scène
+          const splineFetch = document.createElement("link");
+          splineFetch.rel = "preload";
+          splineFetch.as = "fetch";
+          splineFetch.href = SCENE_URL;
+          splineFetch.crossOrigin = "anonymous";
+          splineFetch.fetchPriority = "high";
+          document.head.appendChild(splineFetch);
+
+          // load lib
+          const script = document.createElement("script");
+          script.type = "module";
+          script.src = "https://unpkg.com/@splinetool/viewer@1/build/spline-viewer.js";
+          script.dataset.splineLoader = "true";
+          document.head.appendChild(script);
+
+          // warm fetch
+          fetch(SCENE_URL, { mode: "cors" }).catch(() => {});
+        }
+      })();
+    </script>
   </head>
 
   <body>
-    <main class="page">
-      <section class="card">
-        <header class="header">
-          <div class="brand">
-            <div class="logo" aria-hidden="true">
-              <!-- Petit logo "glow" inspiré style Flexplore -->
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2.5c2.2 0 4 1.8 4 4 0 .6-.1 1.1-.3 1.6 2.4.8 4.3 3.1 4.3 5.9 0 3.5-2.8 6.3-6.3 6.3H10.3C6.8 20.3 4 17.5 4 14c0-2.8 1.9-5.1 4.3-5.9-.2-.5-.3-1-.3-1.6 0-2.2 1.8-4 4-4Z" stroke="currentColor" stroke-width="1.6" opacity=".9"/>
-                <path d="M9.2 13.7c.7-1.3 2-2.2 3.5-2.2 1.8 0 3.3 1.2 3.8 2.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="brandText">
-              <div class="brandName">Flexplore</div>
-              <div class="brandTag">Carte de visite</div>
-            </div>
-          </div>
-        </header>
+    <!-- Préchargement / instanciation du robot (hors écran) -->
+    <div
+      id="spline-preload"
+      style="position: fixed; left: -9999px; top: -9999px; width: 1px; height: 1px; overflow: hidden;"
+      aria-hidden="true"
+    >
+      <!-- On le déplace ensuite dans la zone visible via main.js -->
+      <spline-viewer
+        id="spline-boot"
+        url="https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2"
+      ></spline-viewer>
+    </div>
 
-        <div class="profile">
-          <div class="avatar" aria-hidden="true">
-            <span id="avatarInitial">F</span>
+    <main class="screen">
+      <header class="top">
+        <div class="brand">
+          <div class="mark" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 2.5c2.2 0 4 1.8 4 4 0 .6-.1 1.1-.3 1.6 2.4.8 4.3 3.1 4.3 5.9 0 3.5-2.8 6.3-6.3 6.3H10.3C6.8 20.3 4 17.5 4 14c0-2.8 1.9-5.1 4.3-5.9-.2-.5-.3-1-.3-1.6 0-2.2 1.8-4 4-4Z"
+                stroke="currentColor"
+                stroke-width="1.6"
+                opacity=".9"
+              />
+              <path
+                d="M9.2 13.7c.7-1.3 2-2.2 3.5-2.2 1.8 0 3.3 1.2 3.8 2.9"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+              />
+            </svg>
           </div>
+          <div class="brandText">
+            <div class="brandName">Flexplore</div>
+          </div>
+        </div>
+      </header>
 
-          <div class="profileText">
-            <h1 id="fullName">Florian Fournier</h1>
-            <p id="tagline">Integrations IA et automatisation dans les PME</p>
-            <p id="location" class="muted">Carcassonne</p>
+      <section class="hero">
+        <div class="robotShell" aria-label="Robot Flexplore">
+          <div class="ring" aria-hidden="true"></div>
+
+          <!-- Zone visible: le spline-viewer est injecté ici -->
+          <div id="robotStage" class="robotStage">
+            <div id="robotFallback" class="robotFallback" aria-hidden="true"></div>
           </div>
         </div>
 
-        <div class="primaryActions">
-          <button id="btnAddContact" class="btn primary" type="button">
-            Fiche contact
+        <h1 id="fullName" class="name">Florian Fournier</h1>
+        <p id="tagline" class="subtitle">Expert en IA & Automatisation</p>
+
+        <div class="ctaRow">
+          <button id="btnAddContact" class="btn outline" type="button">
+            <span class="btnIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+                <path d="M12 3v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M8.5 10.5 12 13.9l3.5-3.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6.5 16.5h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            Enregistrer contact
           </button>
 
-          <button id="btnShareContact" class="btn soft" type="button">
-            Partager
-          </button>
-        </div>
-
-        <div class="quickActions" aria-label="Actions rapides">
-          <a id="btnCall" class="iconBtn" href="#" aria-label="Appeler">
-            <span class="icon" aria-hidden="true">
-              <!-- phone -->
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-                <path d="M7 4.5l3 2-1.2 2c-.3.6-.1 1.3.4 1.8l4.5 4.5c.5.5 1.2.7 1.8.4l2-1.2 2 3c.3.5.2 1.2-.2 1.6l-1.2 1.2c-1 1-2.4 1.4-3.8 1-3.1-.9-6.5-3.4-9-5.9C3.9 12.4 1.4 9 2.3 5.9c.4-1.4 0-2.8 1-3.8L4.5 1.9c.4-.4 1.1-.5 1.6-.2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+          <a id="btnCalendly" class="btn primary" href="#" target="_blank" rel="noreferrer">
+            <span class="btnIcon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+                <path d="M7 3.5v3M17 3.5v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M4.5 8.2h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M6.5 5.8h11c1.1 0 2 .9 2 2v11.2c0 1.1-.9 2-2 2h-11c-1.1 0-2-.9-2-2V7.8c0-1.1.9-2 2-2Z" stroke="currentColor" stroke-width="1.8"/>
               </svg>
             </span>
-            <span class="label">Appeler</span>
-          </a>
-
-          <a id="btnWhatsapp" class="iconBtn" href="#" aria-label="WhatsApp">
-            <span class="icon" aria-hidden="true">
-              <!-- chat -->
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-                <path d="M20 12c0 4.4-3.6 8-8 8-1.2 0-2.3-.2-3.3-.6L4 20l.6-4.7c-.4-1-.6-2.1-.6-3.3 0-4.4 3.6-8 8-8s8 3.6 8 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-                <path d="M8.2 11.8h.01M12 11.8h.01M15.8 11.8h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span class="label">WhatsApp</span>
-          </a>
-
-          <a id="btnEmail" class="iconBtn" href="#" aria-label="Email">
-            <span class="icon" aria-hidden="true">
-              <!-- mail -->
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-                <path d="M4 7.5c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2v-9Z" stroke="currentColor" stroke-width="1.6"/>
-                <path d="M5 8l7 5 7-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span class="label">Email</span>
-          </a>
-
-          <a id="btnWebsite" class="iconBtn" href="#" target="_blank" rel="noreferrer" aria-label="Site">
-            <span class="icon" aria-hidden="true">
-              <!-- globe -->
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-                <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.6"/>
-                <path d="M3.5 12h17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <path d="M12 3c2.6 2.6 2.6 15.4 0 18-2.6-2.6-2.6-15.4 0-18Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span class="label">Site</span>
-          </a>
-
-          <a id="btnCalendly" class="iconBtn" href="#" target="_blank" rel="noreferrer" aria-label="RDV">
-            <span class="icon" aria-hidden="true">
-              <!-- calendar -->
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-                <path d="M7 3.5v3M17 3.5v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <path d="M4.5 8.2h15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <path d="M6.5 5.8h11c1.1 0 2 .9 2 2v11.2c0 1.1-.9 2-2 2h-11c-1.1 0-2-.9-2-2V7.8c0-1.1.9-2 2-2Z" stroke="currentColor" stroke-width="1.6"/>
-              </svg>
-            </span>
-            <span class="label">RDV</span>
-          </a>
-
-          <a id="btnLinkedIn" class="iconBtn" href="#" target="_blank" rel="noreferrer" aria-label="LinkedIn">
-            <span class="icon" aria-hidden="true">
-              <!-- in -->
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-                <path d="M6.5 9.5v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M6.5 6.7h.01" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
-                <path d="M11 18.5v-5.2c0-1.3.8-2.3 2.2-2.3 1.5 0 2.3 1 2.3 2.3v5.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M11 12.2v-2.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span class="label">LinkedIn</span>
+            Réserver ma consultation
           </a>
         </div>
 
-        <div class="meta">
-          <div class="metaRow">
-            <span class="muted" id="phoneText">+33 6 52 69 27 00</span>
-            <span class="dot">•</span>
-            <span class="muted" id="emailText">contact@flexplore-ia.com</span>
-          </div>
-          <div class="metaRow">
-            <span class="muted" id="websiteText">flexplore-ia.com</span>
-          </div>
+        <div class="singleAction">
+          <a id="btnWebsite" class="circleBtn" href="#" target="_blank" rel="noreferrer" aria-label="Site web">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden="true">
+              <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M3.5 12h17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M12 3c2.6 2.6 2.6 15.4 0 18-2.6-2.6-2.6-15.4 0-18Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
       </section>
 
-      <footer class="footer">
-        <span class="muted">© <span id="year"></span> Flexplore</span>
+      <footer class="foot">
+        <span id="footNote">© <span id="year"></span> Flexplore</span>
       </footer>
     </main>
 
