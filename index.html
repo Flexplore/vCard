@@ -7,13 +7,12 @@
   <title>Carte NFC • Florian Fournier (Flexplore)</title>
 
   <!-- cache-buster: incrémente v=2, v=3... quand tu modifies -->
-  <link rel="stylesheet" href="styles.css?v=14" />
+  <link rel="stylesheet" href="styles.css?v=15" />
 
   <!-- Précharge logo -->
   <link rel="preload" as="image" href="https://i.imgur.com/HWrE6VI.png" />
 
   <script>
-    // Charge Spline seulement si ça a du sens (perf / data / reduce motion)
     (function () {
       const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const saveData = !!(navigator.connection && navigator.connection.saveData);
@@ -21,7 +20,6 @@
 
       const shouldEnableSpline = !(prefersReducedMotion || saveData || slowNetwork);
 
-      // Expose un flag global pour main.js (fallback)
       window.__SPLINE_ENABLED__ = shouldEnableSpline;
 
       if (!shouldEnableSpline) return;
@@ -29,7 +27,6 @@
       const splineLib = "https://unpkg.com/@splinetool/viewer@1/build/spline-viewer.js";
       const sceneUrl = "https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2";
 
-      // Précharge lib + scène
       const preloadLib = document.createElement("link");
       preloadLib.rel = "modulepreload";
       preloadLib.href = splineLib;
@@ -43,14 +40,12 @@
       preloadScene.crossOrigin = "anonymous";
       document.head.appendChild(preloadScene);
 
-      // Charge la lib
       const script = document.createElement("script");
       script.type = "module";
       script.src = splineLib;
       script.dataset.splineLoader = "true";
       document.head.appendChild(script);
 
-      // Tente un fetch "warm"
       fetch(sceneUrl, { mode: "cors" }).catch(() => {});
     })();
   </script>
@@ -69,13 +64,11 @@
       <div class="robotShell" aria-hidden="true">
         <div class="robotMask">
           <div class="robotStage" id="robotStage">
-            <!-- Spline (si activé) -->
             <spline-viewer
               id="splineRobot"
               url="https://prod.spline.design/HDyWmhB2pMKQXwE8/scene.splinecode?v=20251003-2"
             ></spline-viewer>
 
-            <!-- Fallback (si Spline désactivé / pas chargé) -->
             <div class="robotFallback" id="robotFallback"></div>
           </div>
         </div>
@@ -87,21 +80,22 @@
         <div class="avatar" id="avatar">
           <img id="avatarImg" alt="" />
         </div>
+
         <h1 class="name" id="displayName">Florian Fournier</h1>
+
         <a class="circleBtn compact" id="websiteLink" href="https://flexplore-ia.com" target="_blank" rel="noopener" aria-label="Ouvrir le site">
           <span aria-hidden="true">🌐</span>
         </a>
       </div>
+
       <p class="subtitle">Intégrations IA et automatisation pour les PME</p>
 
       <div class="ctaRow">
-        <!-- inversé: Enregistrer contact devient bleu + texte plus gros -->
         <button class="btn primary big" id="btnVcf" type="button">
           <span class="btnIcon" aria-hidden="true">⬇</span>
           Enregistrer contact
         </button>
 
-        <!-- inversé: Réserver devient outline + texte plus petit -->
         <a class="btn outline small" id="btnCalendly" href="https://calendly.com/flexplore/30min?back=1&month=2025-11" target="_blank" rel="noopener">
           <span class="btnIcon" aria-hidden="true">📅</span>
           Réserver ma consultation
@@ -109,13 +103,11 @@
       </div>
     </section>
 
-    <!-- bande sombre bas de page (évite le “footer bleu différent”) -->
     <div class="footPanel">
       <footer class="foot">© <span id="year"></span> Flexplore</footer>
     </div>
   </main>
 
-  <!-- cache-buster: incrémente v=2, v=3... quand tu modifies -->
-  <script src="main.js?v=13"></script>
+  <script src="main.js?v=14"></script>
 </body>
 </html>
