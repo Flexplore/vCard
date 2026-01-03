@@ -103,6 +103,10 @@
 
   function buildVCard(data) {
     // vCard 3.0 (compatible iPhone/Android)
+    const photoPayload = parseBase64Photo(data.avatarBase64, data.avatarBase64Type);
+    const foldedPhoto = photoPayload
+      ? foldVCardLine(`PHOTO;ENCODING=b;TYPE=${photoPayload.type}:${photoPayload.base64}`)
+      : null;
     const lines = [
       "BEGIN:VCARD",
       "VERSION:3.0",
@@ -120,6 +124,25 @@
     ].filter(Boolean);
 
     return lines.join("\r\n");
+  }
+
+  function foldVCardLine(line) {
+    const chunks = [];
+    for (let i = 0; i < line.length; i += 75) {
+      const chunk = line.slice(i, i + 75);
+      chunks.push(i === 0 ? chunk : ` ${chunk}`);
+    }
+    return chunks.join("\r\n");
+  }
+
+  function parseBase64Photo(value, fallbackType) {
+    if (!value) return null;
+    const stringValue = String(value).trim();
+    const dataUrlMatch = stringValue.match(/^data:image\/(png|jpe?g);base64,/i);
+    const base64 = stringValue.replace(/^data:image\/(png|jpe?g);base64,/i, "").replace(/\s+/g, "");
+    let type = dataUrlMatch ? dataUrlMatch[1].toUpperCase() : String(fallbackType || "JPEG").toUpperCase();
+    if (type === "JPG") type = "JPEG";
+    return base64 ? { base64, type } : null;
   }
 
   function downloadTextFile(content, filename, mime) {
