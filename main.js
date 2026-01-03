@@ -11,7 +11,7 @@
     city: "Carcassonne",
     country: "France",
     whatsapp: "https://wa.me/33652692700",
-    avatarUrl: "",
+    avatarUrl: "https://res-console.cloudinary.com/df8rjlqzg/thumbnails/v1/image/upload/v1767433485/dXBzY2FsZW1lZGlhLXRyYW5zZm9ybWVkXzNfbHg2eGhx/preview",
   };
 
   const LABELS = {
