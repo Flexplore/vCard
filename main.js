@@ -12,8 +12,7 @@
     country: "France",
     whatsapp: "https://wa.me/33652692700",
     avatarUrl: "https://res.cloudinary.com/df8rjlqzg/image/upload/v1767433485/upscalemedia-transformed_3_lx6xhq.png",
-    avatarBase64: "",
-    avatarBase64Type: "JPEG",
+    avatarBase64Jpeg: "",
   };
 
   const LABELS = {
@@ -113,7 +112,7 @@
       "VERSION:3.0",
       `N:${esc(data.lastName)};${esc(data.firstName)};;;`,
       `FN:${esc(`${data.firstName} ${data.lastName}`)}`,
-      foldedPhoto,
+      data.avatarBase64Jpeg ? `PHOTO;ENCODING=b;TYPE=JPEG:${data.avatarBase64Jpeg}` : null,
       data.org ? `ORG:${esc(data.org)}` : null,
       data.title ? `TITLE:${esc(data.title)}` : null,
       data.phone ? `TEL;TYPE=CELL:${esc(data.phone)}` : null,
