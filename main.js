@@ -12,6 +12,8 @@
     country: "France",
     whatsapp: "https://wa.me/33652692700",
     avatarUrl: "https://res.cloudinary.com/df8rjlqzg/image/upload/v1767433485/upscalemedia-transformed_3_lx6xhq.png",
+    avatarBase64: "",
+    avatarBase64Type: "JPEG",
   };
 
   const LABELS = {
@@ -102,11 +104,16 @@
 
   function buildVCard(data) {
     // vCard 3.0 (compatible iPhone/Android)
+    const photoPayload = parseBase64Photo(data.avatarBase64, data.avatarBase64Type);
+    const foldedPhoto = photoPayload
+      ? foldVCardLine(`PHOTO;ENCODING=b;TYPE=${photoPayload.type}:${photoPayload.base64}`)
+      : null;
     const lines = [
       "BEGIN:VCARD",
       "VERSION:3.0",
       `N:${esc(data.lastName)};${esc(data.firstName)};;;`,
       `FN:${esc(`${data.firstName} ${data.lastName}`)}`,
+      foldedPhoto,
       data.org ? `ORG:${esc(data.org)}` : null,
       data.title ? `TITLE:${esc(data.title)}` : null,
       data.phone ? `TEL;TYPE=CELL:${esc(data.phone)}` : null,
@@ -118,6 +125,25 @@
     ].filter(Boolean);
 
     return lines.join("\r\n");
+  }
+
+  function foldVCardLine(line) {
+    const chunks = [];
+    for (let i = 0; i < line.length; i += 75) {
+      const chunk = line.slice(i, i + 75);
+      chunks.push(i === 0 ? chunk : ` ${chunk}`);
+    }
+    return chunks.join("\r\n");
+  }
+
+  function parseBase64Photo(value, fallbackType) {
+    if (!value) return null;
+    const stringValue = String(value).trim();
+    const dataUrlMatch = stringValue.match(/^data:image\/(png|jpe?g);base64,/i);
+    const base64 = stringValue.replace(/^data:image\/(png|jpe?g);base64,/i, "").replace(/\s+/g, "");
+    let type = dataUrlMatch ? dataUrlMatch[1].toUpperCase() : String(fallbackType || "JPEG").toUpperCase();
+    if (type === "JPG") type = "JPEG";
+    return base64 ? { base64, type } : null;
   }
 
   function downloadTextFile(content, filename, mime) {
