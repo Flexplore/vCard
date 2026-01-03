@@ -14,14 +14,8 @@
     country: "France",
     whatsapp: "https://wa.me/33652692700",
 
-    // 1) Photo affichée sur la page (peut être locale dans ton repo)
-    // Mets ta photo dans /assets/avatar.jpg (ou .png) et laisse ce chemin.
+    // photo locale dans ton repo (GitHub Pages servira /vCard/assets/avatar.jpg)
     avatarUrl: "assets/avatar.jpg",
-
-    // 2) Photo embarquée dans la vCard (remplie automatiquement au clic)
-    // (on n'écrit rien ici, c'est calculé)
-    avatarBase64: "",
-    avatarType: "", // "JPEG" ou "PNG"
   };
 
   const LABELS = {
@@ -94,8 +88,8 @@
     }, 3000);
   }
 
-  // Cache photo vCard (évite de refetch à chaque clic)
-  let cachedPhoto = null; // { base64, type }
+  // Cache photo vCard (évite de recalculer)
+  let cachedVCardPhoto = null; // { base64, type: "JPEG" }
 
   // Bouton vCard
   const btnVcf = document.getElementById("btnVcf");
@@ -104,12 +98,13 @@
       try {
         btnVcf.disabled = true;
 
-        // Si on a une photo locale (ou url), on l’embarque dans le VCF
-        if (!cachedPhoto && CONTACT.avatarUrl) {
-          cachedPhoto = await fetchImageAsBase64(CONTACT.avatarUrl);
+        // Important : ça doit tourner sur une URL http(s) (GitHub Pages / Netlify)
+        // Pas en ouvrant index.html en local (file://), sinon fetch peut échouer.
+        if (!cachedVCardPhoto && CONTACT.avatarUrl) {
+          cachedVCardPhoto = await fetchAndPrepareVCardPhoto(CONTACT.avatarUrl);
         }
 
-        const vcf = buildVCard(CONTACT, cachedPhoto);
+        const vcf = buildVCard(CONTACT, cachedVCardPhoto);
         downloadTextFile(vcf, "florian-fournier-flexplore.vcf", "text/vcard;charset=utf-8");
       } catch (e) {
         console.error("Erreur génération vCard:", e);
@@ -167,32 +162,77 @@
     return chunks.join("\r\n");
   }
 
-  // Fetch image -> base64 (sans le prefix data:image/...;base64,)
-  async function fetchImageAsBase64(url) {
+  async function fetchAndPrepareVCardPhoto(url) {
     const res = await fetch(url, { cache: "force-cache" });
     if (!res.ok) throw new Error(`Impossible de charger l'image (${res.status})`);
-
-    const contentType = (res.headers.get("content-type") || "").toLowerCase();
     const blob = await res.blob();
 
-    const base64 = await blobToBase64(blob); // retourne data:...;base64,XXXX
-    const cleaned = base64.replace(/^data:image\/(png|jpe?g);base64,/i, "").replace(/\s+/g, "");
+    // On convertit en JPEG 512x512 pour éviter un VCF énorme
+    const base64 = await blobToSquareJpegBase64(blob, 512, 0.82);
 
-    let type = "JPEG";
-    if (contentType.includes("png") || url.toLowerCase().endsWith(".png")) type = "PNG";
-    if (contentType.includes("jpeg") || contentType.includes("jpg") || url.toLowerCase().endsWith(".jpg") || url.toLowerCase().endsWith(".jpeg")) {
-      type = "JPEG";
-    }
-
-    return { base64: cleaned, type };
+    return { base64, type: "JPEG" };
   }
 
-  function blobToBase64(blob) {
+  async function blobToSquareJpegBase64(blob, size = 512, quality = 0.82) {
+    // Chemin moderne : createImageBitmap (rapide)
+    if (typeof createImageBitmap === "function") {
+      const bmp = await createImageBitmap(blob);
+      const { sx, sy, sw, sh } = centerSquareCrop(bmp.width, bmp.height);
+
+      // crop carré au centre
+      const cropped = await createImageBitmap(blob, sx, sy, sw, sh);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas 2D indisponible");
+
+      ctx.drawImage(cropped, 0, 0, size, size);
+
+      const dataUrl = canvas.toDataURL("image/jpeg", quality);
+      return dataUrl.replace(/^data:image\/jpeg;base64,/i, "").replace(/\s+/g, "");
+    }
+
+    // Fallback : via <img>
+    const dataUrl = await blobToDataUrl(blob);
+    const img = await loadImage(dataUrl);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas 2D indisponible");
+
+    const { sx, sy, sw, sh } = centerSquareCrop(img.naturalWidth, img.naturalHeight);
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
+
+    const jpegUrl = canvas.toDataURL("image/jpeg", quality);
+    return jpegUrl.replace(/^data:image\/jpeg;base64,/i, "").replace(/\s+/g, "");
+  }
+
+  function centerSquareCrop(w, h) {
+    const side = Math.min(w, h);
+    const sx = Math.floor((w - side) / 2);
+    const sy = Math.floor((h - side) / 2);
+    return { sx, sy, sw: side, sh: side };
+  }
+
+  function blobToDataUrl(blob) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onerror = () => reject(new Error("FileReader a échoué"));
       reader.onload = () => resolve(String(reader.result || ""));
       reader.readAsDataURL(blob);
+    });
+  }
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("Impossible de charger l'image"));
+      img.src = src;
     });
   }
 
