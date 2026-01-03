@@ -1,7 +1,58 @@
 (function () {
+  const CONTACT = {
+    firstName: "Florian",
+    lastName: "Fournier",
+    displayName: "Florian Fournier",
+    org: "Flexplore",
+    title: "Intégrations IA et automatisation dans les PME",
+    phone: "+33652692700",
+    email: "contact@flexplore-ia.com",
+    website: "https://flexplore-ia.com",
+    city: "Carcassonne",
+    country: "France",
+    whatsapp: "https://wa.me/33652692700",
+    avatarUrl: "",
+  };
+
+  const LABELS = {
+    fr: {
+      avatarAlt: (name) => `Photo de ${name}`,
+      website: "Ouvrir le site",
+    },
+    en: {
+      avatarAlt: (name) => `Photo of ${name}`,
+      website: "Open website",
+    },
+    es: {
+      avatarAlt: (name) => `Foto de ${name}`,
+      website: "Abrir sitio web",
+    },
+  };
+
+  const locale = (document.documentElement.lang || "fr").toLowerCase();
+  const labels = LABELS[locale] || LABELS.fr;
+
   // Année footer
   const yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
+  const displayNameEl = document.getElementById("displayName");
+  if (displayNameEl) displayNameEl.textContent = CONTACT.displayName;
+
+  const websiteLink = document.getElementById("websiteLink");
+  if (websiteLink) {
+    websiteLink.href = CONTACT.website;
+    websiteLink.setAttribute("aria-label", labels.website);
+  }
+
+  const avatarImg = document.getElementById("avatarImg");
+  if (avatarImg && CONTACT.avatarUrl) {
+    avatarImg.src = CONTACT.avatarUrl;
+    avatarImg.alt = labels.avatarAlt(CONTACT.displayName);
+    avatarImg.style.display = "block";
+  } else if (avatarImg) {
+    avatarImg.alt = "";
+  }
 
   // Fallback si Spline non chargé / désactivé
   const splineEnabled = !!window.__SPLINE_ENABLED__;
@@ -35,18 +86,7 @@
   const btnVcf = document.getElementById("btnVcf");
   if (btnVcf) {
     btnVcf.addEventListener("click", () => {
-      const vcf = buildVCard({
-        firstName: "Florian",
-        lastName: "Fournier",
-        org: "Flexplore",
-        title: "Intégrations IA et automatisation dans les PME",
-        phone: "+33652692700",
-        email: "contact@flexplore-ia.com",
-        website: "https://flexplore-ia.com",
-        city: "Carcassonne",
-        country: "France",
-        whatsapp: "https://wa.me/33652692700",
-      });
+      const vcf = buildVCard(CONTACT);
 
       downloadTextFile(vcf, "florian-fournier-flexplore.vcf", "text/vcard;charset=utf-8");
     });
