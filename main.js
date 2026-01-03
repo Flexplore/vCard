@@ -14,7 +14,8 @@
     country: "France",
     whatsapp: "https://wa.me/33652692700",
 
-    // photo locale dans ton repo (GitHub Pages servira /vCard/assets/avatar.jpg)
+    // image locale servie par GitHub Pages (dans ton repo)
+    // ici ça marche car ton image est accessible sur /vCard/assets/avatar.jpg
     avatarUrl: "assets/avatar.jpg",
   };
 
@@ -22,14 +23,20 @@
     fr: {
       avatarAlt: (name) => `Photo de ${name}`,
       website: "Ouvrir le site",
+      vcfBusy: "Préparation du contact…",
+      vcfIdle: "Enregistrer contact",
     },
     en: {
       avatarAlt: (name) => `Photo of ${name}`,
       website: "Open website",
+      vcfBusy: "Preparing contact…",
+      vcfIdle: "Save contact",
     },
     es: {
       avatarAlt: (name) => `Foto de ${name}`,
       website: "Abrir sitio web",
+      vcfBusy: "Preparando contacto…",
+      vcfIdle: "Guardar contacto",
     },
   };
 
@@ -88,18 +95,40 @@
     }, 3000);
   }
 
-  // Cache photo vCard (évite de recalculer)
+  // Cache photo vCard (évite recalcul)
   let cachedVCardPhoto = null; // { base64, type: "JPEG" }
 
-  // Bouton vCard
   const btnVcf = document.getElementById("btnVcf");
+  const btnVcfLabelEl = btnVcf ? btnVcf.childNodes : null;
+
+  function setBtnVcfBusy(isBusy) {
+    if (!btnVcf) return;
+    btnVcf.disabled = isBusy;
+
+    // remplace le texte du bouton sans toucher aux icônes
+    // bouton: [span icon] + texte
+    const textNode = Array.from(btnVcf.childNodes).find(
+      (n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim().length > 0
+    );
+    if (textNode) {
+      textNode.textContent = " " + (isBusy ? labels.vcfBusy : labels.vcfIdle);
+    }
+  }
+
   if (btnVcf) {
+    // force le texte propre au chargement
+    setBtnVcfBusy(false);
+
     btnVcf.addEventListener("click", async () => {
       try {
-        btnVcf.disabled = true;
+        setBtnVcfBusy(true);
 
-        // Important : ça doit tourner sur une URL http(s) (GitHub Pages / Netlify)
-        // Pas en ouvrant index.html en local (file://), sinon fetch peut échouer.
+        // IMPORTANT: si tu ouvres le fichier en local (file://), fetch peut échouer.
+        // Il faut tester sur https://flexplore.github.io/vCard/
+        if (location.protocol === "file:") {
+          throw new Error("Ouvre la page via GitHub Pages (https) et pas en file://");
+        }
+
         if (!cachedVCardPhoto && CONTACT.avatarUrl) {
           cachedVCardPhoto = await fetchAndPrepareVCardPhoto(CONTACT.avatarUrl);
         }
@@ -108,11 +137,12 @@
         downloadTextFile(vcf, "florian-fournier-flexplore.vcf", "text/vcard;charset=utf-8");
       } catch (e) {
         console.error("Erreur génération vCard:", e);
-        // Même si la photo échoue, on génère un VCF sans photo
+
+        // fallback: vcf sans photo si quelque chose bloque
         const vcf = buildVCard(CONTACT, null);
         downloadTextFile(vcf, "florian-fournier-flexplore.vcf", "text/vcard;charset=utf-8");
       } finally {
-        btnVcf.disabled = false;
+        setBtnVcfBusy(false);
       }
     });
   }
@@ -127,32 +157,33 @@
 
   function buildVCard(data, photo) {
     // vCard 3.0 (compatible iPhone/Android)
-    const photoLine = photo
-      ? foldVCardLine(`PHOTO;ENCODING=b;TYPE=${photo.type}:${photo.base64}`)
-      : null;
-
     const lines = [
       "BEGIN:VCARD",
       "VERSION:3.0",
       `N:${esc(data.lastName)};${esc(data.firstName)};;;`,
       `FN:${esc(`${data.firstName} ${data.lastName}`)}`,
-      photoLine,
-      data.org ? `ORG:${esc(data.org)}` : null,
-      data.title ? `TITLE:${esc(data.title)}` : null,
-      data.phone ? `TEL;TYPE=CELL:${esc(data.phone)}` : null,
-      data.email ? `EMAIL;TYPE=INTERNET:${esc(data.email)}` : null,
-      data.website ? `URL:${esc(data.website)}` : null,
-      (data.city || data.country)
-        ? `ADR;TYPE=WORK:;;${esc(data.city || "")};;;${esc(data.country || "")}`
-        : null,
-      data.whatsapp ? `X-SOCIALPROFILE;type=whatsapp:${esc(data.whatsapp)}` : null,
-      "END:VCARD",
-    ].filter(Boolean);
+    ];
 
+    if (photo && photo.base64) {
+      // on plie la ligne pour respecter le format vCard
+      lines.push(foldVCardLine(`PHOTO;ENCODING=b;TYPE=${photo.type}:${photo.base64}`));
+    }
+
+    if (data.org) lines.push(`ORG:${esc(data.org)}`);
+    if (data.title) lines.push(`TITLE:${esc(data.title)}`);
+    if (data.phone) lines.push(`TEL;TYPE=CELL:${esc(data.phone)}`);
+    if (data.email) lines.push(`EMAIL;TYPE=INTERNET:${esc(data.email)}`);
+    if (data.website) lines.push(`URL:${esc(data.website)}`);
+    if (data.city || data.country) {
+      lines.push(`ADR;TYPE=WORK:;;${esc(data.city || "")};;;${esc(data.country || "")}`);
+    }
+    if (data.whatsapp) lines.push(`X-SOCIALPROFILE;type=whatsapp:${esc(data.whatsapp)}`);
+
+    lines.push("END:VCARD");
     return lines.join("\r\n");
   }
 
-  // Découpe ligne vCard (75 chars max par ligne, continuation avec espace)
+  // Découpe ligne vCard (75 chars max, continuation avec un espace)
   function foldVCardLine(line) {
     const chunks = [];
     for (let i = 0; i < line.length; i += 75) {
@@ -163,24 +194,22 @@
   }
 
   async function fetchAndPrepareVCardPhoto(url) {
-    const res = await fetch(url, { cache: "force-cache" });
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error(`Impossible de charger l'image (${res.status})`);
     const blob = await res.blob();
 
-    // On convertit en JPEG 512x512 pour éviter un VCF énorme
+    // compresse en JPEG carré 512x512 (qualité 0.82)
     const base64 = await blobToSquareJpegBase64(blob, 512, 0.82);
-
     return { base64, type: "JPEG" };
   }
 
   async function blobToSquareJpegBase64(blob, size = 512, quality = 0.82) {
-    // Chemin moderne : createImageBitmap (rapide)
+    // chemin moderne
     if (typeof createImageBitmap === "function") {
       const bmp = await createImageBitmap(blob);
-      const { sx, sy, sw, sh } = centerSquareCrop(bmp.width, bmp.height);
+      const crop = centerSquareCrop(bmp.width, bmp.height);
 
-      // crop carré au centre
-      const cropped = await createImageBitmap(blob, sx, sy, sw, sh);
+      const cropped = await createImageBitmap(blob, crop.sx, crop.sy, crop.sw, crop.sh);
 
       const canvas = document.createElement("canvas");
       canvas.width = size;
@@ -194,7 +223,7 @@
       return dataUrl.replace(/^data:image\/jpeg;base64,/i, "").replace(/\s+/g, "");
     }
 
-    // Fallback : via <img>
+    // fallback via <img>
     const dataUrl = await blobToDataUrl(blob);
     const img = await loadImage(dataUrl);
 
@@ -204,8 +233,8 @@
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas 2D indisponible");
 
-    const { sx, sy, sw, sh } = centerSquareCrop(img.naturalWidth, img.naturalHeight);
-    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
+    const crop = centerSquareCrop(img.naturalWidth, img.naturalHeight);
+    ctx.drawImage(img, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, size, size);
 
     const jpegUrl = canvas.toDataURL("image/jpeg", quality);
     return jpegUrl.replace(/^data:image\/jpeg;base64,/i, "").replace(/\s+/g, "");
