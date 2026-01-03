@@ -12,7 +12,9 @@
     country: "France",
     whatsapp: "https://wa.me/33652692700",
     avatarUrl: "https://res.cloudinary.com/df8rjlqzg/image/upload/v1767433485/upscalemedia-transformed_3_lx6xhq.png",
-    avatarBase64Jpeg: "",
+    avatarBase64: "",
+    avatarBase64Type: "JPEG",
+    avatarLocalImage: "",
   };
 
   const LABELS = {
@@ -86,7 +88,8 @@
   // vCard
   const btnVcf = document.getElementById("btnVcf");
   if (btnVcf) {
-    btnVcf.addEventListener("click", () => {
+    btnVcf.addEventListener("click", async () => {
+      await ensureLocalPhotoLoaded(CONTACT);
       const vcf = buildVCard(CONTACT);
 
       downloadTextFile(vcf, "florian-fournier-flexplore.vcf", "text/vcard;charset=utf-8");
@@ -112,7 +115,7 @@
       "VERSION:3.0",
       `N:${esc(data.lastName)};${esc(data.firstName)};;;`,
       `FN:${esc(`${data.firstName} ${data.lastName}`)}`,
-      data.avatarBase64Jpeg ? `PHOTO;ENCODING=b;TYPE=JPEG:${data.avatarBase64Jpeg}` : null,
+      foldedPhoto,
       data.org ? `ORG:${esc(data.org)}` : null,
       data.title ? `TITLE:${esc(data.title)}` : null,
       data.phone ? `TEL;TYPE=CELL:${esc(data.phone)}` : null,
@@ -133,6 +136,29 @@
       chunks.push(i === 0 ? chunk : ` ${chunk}`);
     }
     return chunks.join("\r\n");
+  }
+
+  async function ensureLocalPhotoLoaded(data) {
+    if (data.avatarBase64 || !data.avatarLocalImage) return;
+    try {
+      const response = await fetch(data.avatarLocalImage);
+      if (!response.ok) return;
+      const blob = await response.blob();
+      const base64 = await blobToBase64(blob);
+      data.avatarBase64 = base64;
+      data.avatarBase64Type = blob.type.includes("png") ? "PNG" : "JPEG";
+    } catch (error) {
+      // Ignore and let the vCard be generated without photo if loading fails.
+    }
+  }
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || "").replace(/^data:image\/[^;]+;base64,/i, ""));
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   }
 
   function parseBase64Photo(value, fallbackType) {
